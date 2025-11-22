@@ -3,7 +3,7 @@
 **Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
 **Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
 
-**Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
+**Note**: This template is filled in by the `/speckit.plan` command and inherits the Smart Letter constitution guardrails.
 
 ## Summary
 
@@ -11,94 +11,75 @@
 
 ## Technical Context
 
-<!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
--->
-
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-**Project Type**: [single/web/mobile - determines source structure]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+**Language/Version**: Java 21 (Spring Boot 3.3.x)  
+**Primary Dependencies**: Spring Web, Spring WebClient, Spring Validation, Thymeleaf, Spring Mail, Micrometer (note deviations explicitly)  
+**Storage**: PostgreSQL email audit log (state `N/A` only if the feature is entirely stateless)  
+**Testing**: JUnit 5, Spring Boot Test, Testcontainers, AssertJ  
+**Target Platform**: Linux container (x86_64) behind the shared HTTPS gateway  
+**Project Type**: Backend microservice  
+**Performance Goals**: LLM round-trip < 3s p95, email dispatch < 5s p95 unless tighter SLAs are required  
+**Constraints**: Contract-first OpenAPI, HTML + plaintext email pairing, deterministic fallback path, Micrometer metrics for llm/email events  
+**Scale/Scope**: Baseline 10k rich-text emails per day; override with feature-specific demand if known
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+- **Contract readiness**: OpenAPI delta, DTO validation rules, and backward compatibility strategy are documented and approved (Principle I).
+- **LLM safety**: Prompt contract, redaction controls, timeout budget, and fallback narrative are captured (Principle II).
+- **Email integrity**: HTML + plaintext templates, accessibility requirements, and snapshot testing approach are agreed (Principle III).
+- **Observability/Fallback metrics**: Micrometer metrics, alert thresholds, and release verification plan are listed under Risks/Mitigations.
 
-## Project Structure
+### Project Structure
 
 ### Documentation (this feature)
 
 ```text
 specs/[###-feature]/
-├── plan.md              # This file (/speckit.plan command output)
-├── research.md          # Phase 0 output (/speckit.plan command)
-├── data-model.md        # Phase 1 output (/speckit.plan command)
-├── quickstart.md        # Phase 1 output (/speckit.plan command)
-├── contracts/           # Phase 1 output (/speckit.plan command)
-└── tasks.md             # Phase 2 output (/speckit.tasks command - NOT created by /speckit.plan)
+├── plan.md              # /speckit.plan output
+├── research.md          # Phase 0 (/speckit.plan)
+├── data-model.md        # Phase 1 (/speckit.plan)
+├── quickstart.md        # Phase 1 (/speckit.plan)
+├── contracts/openapi.yaml   # Contract-first source of truth
+└── tasks.md             # Phase 2 (/speckit.tasks)
 ```
 
 ### Source Code (repository root)
-<!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
--->
 
 ```text
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
-src/
-├── models/
-├── services/
-├── cli/
-└── lib/
+docs/
+└── contracts/openapi.yaml
 
-tests/
-├── contract/
-├── integration/
+src/main/java/com/smartletter/
+├── api/            # Controllers + DTOs
+├── llm/            # Client, prompt builders, safety filters
+├── email/          # Template renderers + deliverability utilities
+├── service/        # Domain orchestration
+└── config/         # Spring configuration, metrics, exception mapping
+
+src/main/resources/
+├── templates/      # HTML + plaintext email pairs
+├── prompts/        # Versioned system/user prompt assets
+└── application.yml
+
+src/test/java/com/smartletter/
+├── contract/       # LLM + SMTP contract tests
+├── integration/    # request → LLM → email flow
 └── unit/
 
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
-
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
-
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
-
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
+src/test/resources/
+└── templates/__snapshots__/   # Email snapshot baselines
 ```
 
-**Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
+**Structure Decision**: This layout is the default; document any additions (e.g., extra modules) and how they respect the constitution guardrails.
 
 ## Complexity Tracking
 
 > **Fill ONLY if Constitution Check has violations that must be justified**
 
+> Use this table to record any deviation from contract-first APIs, the LLM safety envelope, or rich-email requirements.
+
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+| [e.g., Skipping fallback email] | [current need] | [why deterministic fallback insufficient] |
+| [e.g., Second outbound channel] | [specific problem] | [why email-only scope insufficient] |

@@ -48,9 +48,10 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan
-- [ ] T002 Initialize [language] project with [framework] dependencies
-- [ ] T003 [P] Configure linting and formatting tools
+- [ ] T001 Scaffold Spring Boot 3.3 project (Gradle) with base package `com.smartletter`
+- [ ] T002 Add baseline OpenAPI contract under `docs/contracts/openapi.yaml` and wire swagger generation task
+- [ ] T003 [P] Configure Spotless/Checkstyle, Error Prone, and formatter rules matching constitution guardrails
+- [ ] T004 [P] Set up Git hooks/CI jobs that block merges when constitution checks fail
 
 ---
 
@@ -62,12 +63,13 @@ description: "Task list template for feature implementation"
 
 Examples of foundational tasks (adjust based on your project):
 
-- [ ] T004 Setup database schema and migrations framework
-- [ ] T005 [P] Implement authentication/authorization framework
-- [ ] T006 [P] Setup API routing and middleware structure
-- [ ] T007 Create base models/entities that all stories depend on
-- [ ] T008 Configure error handling and logging infrastructure
-- [ ] T009 Setup environment configuration management
+- [ ] T005 Create shared DTOs, validation annotations, and exception mappers for `POST /letters`
+- [ ] T006 [P] Implement shared `SmartLetterLlmClient` with WebClient, timeouts, retry/backoff, and prompt redaction utilities
+- [ ] T007 Configure email templating directories (`src/main/resources/templates/`) plus Thymeleaf + sanitizer configuration
+- [ ] T008 Configure Spring Mail provider credentials, provider-specific headers, and health probes
+- [ ] T009 Add Micrometer metrics, tracing filters, and log correlation for request → LLM → email path
+- [ ] T010 Define deterministic fallback email content and store snapshots under `src/test/resources/templates/__snapshots__/`
+- [ ] T011 Setup environment configuration management (Spring Config + secrets manager bindings)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -83,17 +85,17 @@ Examples of foundational tasks (adjust based on your project):
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for [endpoint] in tests/contract/test_[name].py
-- [ ] T011 [P] [US1] Integration test for [user journey] in tests/integration/test_[name].py
+- [ ] T012 [P] [US1] Contract test for `POST /letters` using MockMvc + OpenAPI validator in `src/test/java/.../contract/LetterContractTest.java`
+- [ ] T013 [P] [US1] Snapshot test for HTML + plaintext templates in `src/test/java/.../templates/LetterTemplateSnapshotTest.java`
+- [ ] T014 [US1] Integration test covering request → LLM stub → email fallback in `src/test/java/.../integration/LetterFlowIT.java`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Create [Entity1] model in src/models/[entity1].py
-- [ ] T013 [P] [US1] Create [Entity2] model in src/models/[entity2].py
-- [ ] T014 [US1] Implement [Service] in src/services/[service].py (depends on T012, T013)
-- [ ] T015 [US1] Implement [endpoint/feature] in src/[location]/[file].py
-- [ ] T016 [US1] Add validation and error handling
-- [ ] T017 [US1] Add logging for user story 1 operations
+- [ ] T015 [P] [US1] Implement `LetterRequest`/`LetterResponse` DTOs with validation in `src/main/java/.../api/`
+- [ ] T016 [P] [US1] Build orchestrator service `LetterService` combining LLM output + fallback template
+- [ ] T017 [US1] Implement `LetterController` with OpenAPI annotations and contract tests
+- [ ] T018 [US1] Add Micrometer timers and structured logging for correlation IDs across controller/service/client layers
+- [ ] T019 [US1] Record fallback incidents to persistent audit store (if enabled)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -107,15 +109,16 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Contract test for [endpoint] in tests/contract/test_[name].py
-- [ ] T019 [P] [US2] Integration test for [user journey] in tests/integration/test_[name].py
+- [ ] T020 [P] [US2] Contract test for new request fields/version headers in `src/test/java/.../contract/LetterContractV2Test.java`
+- [ ] T021 [P] [US2] Rendering regression test for new template variant (locale, tone) in `src/test/java/.../templates/...`
+- [ ] T022 [US2] Integration test simulating LLM retry/exponential backoff vs provider throttling
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Create [Entity] model in src/models/[entity].py
-- [ ] T021 [US2] Implement [Service] in src/services/[service].py
-- [ ] T022 [US2] Implement [endpoint/feature] in src/[location]/[file].py
-- [ ] T023 [US2] Integrate with User Story 1 components (if needed)
+- [ ] T023 [P] [US2] Extend prompt builder to support locale/tone switches in `src/main/java/.../llm/PromptBuilder.java`
+- [ ] T024 [US2] Update email renderer to select correct template pair and ensure accessibility annotations
+- [ ] T025 [US2] Wire API version negotiation or feature flags while keeping v1 contract intact
+- [ ] T026 [US2] Update metrics/alerts for the new variant-specific KPIs
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -129,14 +132,16 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T024 [P] [US3] Contract test for [endpoint] in tests/contract/test_[name].py
-- [ ] T025 [P] [US3] Integration test for [user journey] in tests/integration/test_[name].py
+- [ ] T027 [P] [US3] Contract test for new metadata/attachments (if any) using WireMock for downstream dependencies
+- [ ] T028 [P] [US3] Load test scenario for throughput/latency budgets using Gatling or k6
+- [ ] T029 [US3] Integration test for fallback escalation path (e.g., queueing manual review)
 
 ### Implementation for User Story 3
 
-- [ ] T026 [P] [US3] Create [Entity] model in src/models/[entity].py
-- [ ] T027 [US3] Implement [Service] in src/services/[service].py
-- [ ] T028 [US3] Implement [endpoint/feature] in src/[location]/[file].py
+- [ ] T030 [P] [US3] Introduce new domain model (e.g., Attachment, ChannelPreference) with validation + persistence if required
+- [ ] T031 [US3] Extend orchestrator to branch logic (LLM vs manual template) based on policy engine result
+- [ ] T032 [US3] Implement supporting scheduler/queue integration if escalations need async handling
+- [ ] T033 [US3] Update observability dashboards and alerts for new flow variants
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -150,12 +155,12 @@ Examples of foundational tasks (adjust based on your project):
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] TXXX [P] Documentation updates in docs/
-- [ ] TXXX Code cleanup and refactoring
-- [ ] TXXX Performance optimization across all stories
-- [ ] TXXX [P] Additional unit tests (if requested) in tests/unit/
-- [ ] TXXX Security hardening
-- [ ] TXXX Run quickstart.md validation
+- [ ] TXXX [P] Documentation updates in `docs/` (OpenAPI changelog, prompt catalog, email template index)
+- [ ] TXXX Code cleanup, dead template removal, and prompt refactors
+- [ ] TXXX Performance/latency tuning across LLM + SMTP integrations
+- [ ] TXXX [P] Additional unit tests or snapshot refreshes in `src/test/java` and `src/test/resources`
+- [ ] TXXX Security hardening (secret rotation, prompt redaction review)
+- [ ] TXXX Run quickstart.md validation plus staging send-down audit
 
 ---
 
@@ -183,6 +188,7 @@ Examples of foundational tasks (adjust based on your project):
 - Services before endpoints
 - Core implementation before integration
 - Story complete before moving to next priority
+- Honor contract-first, LLM safety, and rich-email integrity guardrails for every change; document exceptions in the Complexity Tracking log
 
 ### Parallel Opportunities
 

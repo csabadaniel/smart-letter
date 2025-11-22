@@ -1,50 +1,62 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report
+Version: N/A → 1.0.0
+Modified Principles:
+- None (initial publication)
+Added Sections:
+- Core Principles
+- Service Guardrails
+- Workflow & Quality Gates
+- Governance
+Removed Sections:
+- None
+Templates:
+- .specify/templates/plan-template.md ✅ updated
+- .specify/templates/spec-template.md ✅ updated
+- .specify/templates/tasks-template.md ✅ updated
+Follow-ups:
+- None
+-->
+
+# Smart Letter Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Contract-First Interfaces
+- Publish OpenAPI definitions and example payloads under `docs/contracts/openapi.yaml` before implementing any controller or client.
+- Enforce `jakarta.validation` and explicit error contracts on every DTO so invalid data is rejected deterministically and logged with correlation IDs.
+- Introduce new response fields in a backward compatible way; breaking changes require versioned routes or header-based negotiation plus a documented migration window.
+*Rationale*: Stable contracts keep downstream systems predictable and minimize regression risk in this single-purpose microservice.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. LLM Safety Envelope
+- Route all prompt/response traffic through a single Spring `WebClient` that applies strict timeouts, retry/backoff rules, request/response size caps, and prompt redaction for secrets or PII before the payload leaves the service boundary.
+- Persist hashed prompt metadata and model decisions in audit logs so production issues can be replayed without exposing user data.
+- Provide deterministic fallbacks: if the LLM call fails or violates policy, return a templated human-authored email body and flag the incident via metrics/alerts instead of delivering unreviewed content.
+*Rationale*: Guardrails keep AI output safe, support compliance, and avoid user-facing failures from an upstream dependency we do not control.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Rich Email Integrity
+- Generate all outbound emails through vetted templates (Thymeleaf or equivalent) that emit both HTML and plaintext parts; never concatenate raw strings from model output directly into SMTP payloads.
+- Enforce accessibility (semantic headings, meaningful alt text) and sanitize the final markup before sending; snapshot tests must detect unintended markup changes.
+- Validate deliverability by linting links, inline CSS, and required footer content; block deployment if rendering tests fail.
+*Rationale*: The email is the only user-visible surface, so high-fidelity rendering and safety gates are mandatory.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+## Service Guardrails
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+- **Runtime Stack**: Java 21, Spring Boot 3.3.x, Gradle build, Spring MVC controllers, Spring WebClient for outbound HTTP, and Spring Mail/Jakarta Mail for SMTP. Deviations require architecture approval.
+- **LLM Integration**: Use HTTPS JSON APIs with API-key auth stored in the secrets manager; prompts live in `src/main/resources/prompts/` and must be versioned.
+- **Email Delivery**: Store templates in `src/main/resources/templates/` with paired HTML/text variants, and send via a provider that supports rich text (e.g., SES, Postmark). Capture provider message IDs for traceability.
+- **Configuration & Secrets**: Manage via Spring Config + environment variables; never persist raw LLM responses beyond transient processing logs.
+- **Observability**: Emit Micrometer metrics (`llm.latency`, `email.sent`, `email.fallback_triggered`) and structured logs with trace IDs propagated through LLM and SMTP calls. Alerts fire when fallback rates exceed 1% per hour.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Workflow & Quality Gates
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
-
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
-
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+- **Definition of Ready**: A feature cannot enter implementation until the OpenAPI delta, prompt contract, and email template outline are documented, along with acceptance tests for success/failure paths.
+- **Testing Expectations**: Unit tests back every controller/service; contract tests stub the LLM client; snapshot/integration tests render HTML + plaintext outputs; at least one automated scenario exercises the full request → LLM → email pipeline using recorded fixtures.
+- **Code Review Checklist**: PRs must cite which principle they satisfy, attach contract diffs, and show evidence that fallbacks, validation, and accessibility checks are covered. No merge if any checklist item is unresolved.
+- **Release Gate**: A release candidate must demonstrate zero critical alerts in staging for 24 hours and produce a sample outbound email approved by product/UX.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This constitution supersedes other development practices for the Smart Letter service. Amendments require an RFC describing the motivation, risk assessment, and migration plan, plus approval from the service tech lead and product owner. Version changes follow semantic rules: MAJOR for removals or redefinitions of principles/sections, MINOR for new principles or expanded guardrails, PATCH for clarifications that do not change obligations. Every merged feature plan/spec/tasks document must include a "Constitution Check" section that records compliance evidence. The release engineer schedules quarterly compliance reviews; any violations must be remediated before the next release or explicitly waived with documented risk acceptance.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2025-11-22 | **Last Amended**: 2025-11-22
