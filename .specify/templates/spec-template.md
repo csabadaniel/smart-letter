@@ -77,6 +77,8 @@
 - What happens when the LLM endpoint times out, redacts the response, or returns content that violates safety policies?
 - How does the system handle email provider failures, template rendering errors, or missing personalization fields while still honoring fallback delivery?
 - What is the behavior when duplicate requests (same correlation ID) arrive or when validation fails for inputs coming from upstream services?
+- How does the service respond when Cloud Run cold starts exceed latency budgets or Always Free quotas (requests, CPU, memory) are exhausted mid-flight?
+- What happens if container build/push automation fails or a `gcloud run deploy` rollback is required?
 
 ## Requirements *(mandatory)*
 
@@ -93,11 +95,13 @@
 - **FR-004**: LLM output MUST be sanitized, truncated to policy limits, and merged into approved templates without raw string concatenation.
 - **FR-005**: Emails MUST be sent with both HTML and plaintext bodies plus accessibility-compliant structure; tests must snapshot both.
 - **FR-006**: The system MUST emit Micrometer metrics/logs for correlation IDs, LLM latency, email-send outcomes, and fallback activations.
+- **FR-007**: CI/CD MUST build an OCI image using Paketo Buildpacks or Jib, generate an SBOM, and push the artifact to Artifact Registry with vulnerability scanning enforced.
+- **FR-008**: Deployments MUST target Cloud Run with Always Free settings (≤1 vCPU, ≤256 MiB memory, ≤20 concurrency) and document the exact `gcloud run deploy` or Terraform invocation.
 
 *Example of marking unclear requirements:*
 
-- **FR-007**: System MUST deliver email through [NEEDS CLARIFICATION: provider not specified - SES, Postmark, SMTP relay?]
-- **FR-008**: LLM prompt instructions MUST support [NEEDS CLARIFICATION: languages/tones not defined]
+- **FR-009**: System MUST deliver email through [NEEDS CLARIFICATION: provider not specified - SES, Postmark, SMTP relay?]
+- **FR-010**: LLM prompt instructions MUST support [NEEDS CLARIFICATION: languages/tones not defined]
 
 ### LLM & Email Safeguards *(constitution-required)*
 
@@ -106,11 +110,20 @@
 - Document how snapshot tests store golden HTML/text fixtures and how regressions will be reviewed.
 - Outline alert thresholds for `llm.latency`, `email.sent`, and `email.fallback_triggered` metrics.
 
+### Containerization & GCP Deployment *(constitution-required)*
+
+- Describe how the OCI image is produced (Buildpacks vs. Jib), tagged, and promoted between environments.
+- Document Artifact Registry repositories, SBOM storage, and vulnerability scanning expectations.
+- Specify Cloud Run service configuration (region, vCPU, memory, concurrency, min/max instances) and how it remains inside the Always Free tier.
+- Capture the exact `gcloud run deploy` or infrastructure-as-code commands, including environment variables and Secret Manager references.
+- Define rollback/blue-green strategy and how cold-start latency will be measured and enforced.
+
 ### Key Entities *(include if feature involves data)*
 
 - **LetterRequest**: Canonical inbound payload containing recipient metadata, personalization tokens, locale, and requested letter type.
 - **PromptContext**: Structured object that assembles system prompt, user content, and safety filters before hitting the LLM endpoint.
 - **EmailRender**: Resulting HTML + plaintext body pair, including accessibility metadata, footer requirements, and links tracked for auditing.
+- **DeployTarget**: Cloud Run configuration object (service name, region, concurrency, env vars, Secret Manager bindings) consumed by deployment scripts.
 
 ## Success Criteria *(mandatory)*
 
@@ -125,3 +138,5 @@
 - **SC-002**: LLM fallback rate stays below 1% per hour in staging and production.
 - **SC-003**: Accessibility/linting suite passes 100% of email snapshots before release.
 - **SC-004**: Observability dashboards capture correlation IDs for 100% of letters and allow tracing from request to SMTP provider ID.
+- **SC-005**: Container image build + scan completes under 5 minutes and yields zero critical vulnerabilities before deployment.
+- **SC-006**: Cloud Run revisions stay within Always Free quotas (≤2M requests/month, ≤360k vCPU-seconds) while keeping cold-start latency < 2 seconds and steady-state latency < 1 second p95.

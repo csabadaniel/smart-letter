@@ -19,7 +19,8 @@
 **Project Type**: Backend microservice  
 **Performance Goals**: LLM round-trip < 3s p95, email dispatch < 5s p95 unless tighter SLAs are required  
 **Constraints**: Contract-first OpenAPI, HTML + plaintext email pairing, deterministic fallback path, Micrometer metrics for llm/email events  
-**Scale/Scope**: Baseline 10k rich-text emails per day; override with feature-specific demand if known
+**Scale/Scope**: Baseline 10k rich-text emails per day; override with feature-specific demand if known  
+**Containerization & Deployment**: Build OCI images via Paketo Buildpacks or Jib, publish to Artifact Registry, and target Cloud Run (Always Free tier: ≤1 vCPU, ≤256 MiB, ≤20 concurrency) with `gcloud run deploy` automation recorded here
 
 ## Constitution Check
 
@@ -29,6 +30,7 @@
 - **LLM safety**: Prompt contract, redaction controls, timeout budget, and fallback narrative are captured (Principle II).
 - **Email integrity**: HTML + plaintext templates, accessibility requirements, and snapshot testing approach are agreed (Principle III).
 - **Observability/Fallback metrics**: Micrometer metrics, alert thresholds, and release verification plan are listed under Risks/Mitigations.
+- **Container/GCP budget**: Docker/Buildpacks approach, Artifact Registry repo, Cloud Run settings (region, memory, concurrency), and Always Free compliance plan are documented (Service Guardrails).
 
 ### Project Structure
 
@@ -69,6 +71,11 @@ src/test/java/com/smartletter/
 
 src/test/resources/
 └── templates/__snapshots__/   # Email snapshot baselines
+
+infra/
+├── cloudrun/service.yaml      # Cloud Run defaults (region, CPU/memory, concurrency)
+├── scripts/deploy-cloudrun.sh # `gcloud run deploy` helper with Always Free flags
+└── Dockerfile (optional)      # Only if deviating from Buildpacks/Jib defaults
 ```
 
 **Structure Decision**: This layout is the default; document any additions (e.g., extra modules) and how they respect the constitution guardrails.
@@ -77,7 +84,7 @@ src/test/resources/
 
 > **Fill ONLY if Constitution Check has violations that must be justified**
 
-> Use this table to record any deviation from contract-first APIs, the LLM safety envelope, or rich-email requirements.
+> Use this table to record any deviation from contract-first APIs, the LLM safety envelope, rich-email requirements, or containerization/GCP deployment guardrails.
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|

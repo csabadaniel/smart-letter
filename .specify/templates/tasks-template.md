@@ -70,6 +70,8 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T009 Add Micrometer metrics, tracing filters, and log correlation for request → LLM → email path
 - [ ] T010 Define deterministic fallback email content and store snapshots under `src/test/resources/templates/__snapshots__/`
 - [ ] T011 Setup environment configuration management (Spring Config + secrets manager bindings)
+- [ ] T012 [P] Configure Paketo Buildpacks or Jib settings (including SBOM generation) and ensure the resulting image runs as non-root
+- [ ] T013 [P] Create Artifact Registry repository, `infra/cloudrun/service.yaml`, and `scripts/deploy-cloudrun.sh` with Always Free tier limits baked in
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -85,17 +87,17 @@ Examples of foundational tasks (adjust based on your project):
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T012 [P] [US1] Contract test for `POST /letters` using MockMvc + OpenAPI validator in `src/test/java/.../contract/LetterContractTest.java`
-- [ ] T013 [P] [US1] Snapshot test for HTML + plaintext templates in `src/test/java/.../templates/LetterTemplateSnapshotTest.java`
-- [ ] T014 [US1] Integration test covering request → LLM stub → email fallback in `src/test/java/.../integration/LetterFlowIT.java`
+- [ ] T020 [P] [US1] Contract test for `POST /letters` using MockMvc + OpenAPI validator in `src/test/java/.../contract/LetterContractTest.java`
+- [ ] T021 [P] [US1] Snapshot test for HTML + plaintext templates in `src/test/java/.../templates/LetterTemplateSnapshotTest.java`
+- [ ] T022 [US1] Integration test covering request → LLM stub → email fallback in `src/test/java/.../integration/LetterFlowIT.java`
 
 ### Implementation for User Story 1
 
-- [ ] T015 [P] [US1] Implement `LetterRequest`/`LetterResponse` DTOs with validation in `src/main/java/.../api/`
-- [ ] T016 [P] [US1] Build orchestrator service `LetterService` combining LLM output + fallback template
-- [ ] T017 [US1] Implement `LetterController` with OpenAPI annotations and contract tests
-- [ ] T018 [US1] Add Micrometer timers and structured logging for correlation IDs across controller/service/client layers
-- [ ] T019 [US1] Record fallback incidents to persistent audit store (if enabled)
+- [ ] T023 [P] [US1] Implement `LetterRequest`/`LetterResponse` DTOs with validation in `src/main/java/.../api/`
+- [ ] T024 [P] [US1] Build orchestrator service `LetterService` combining LLM output + fallback template
+- [ ] T025 [US1] Implement `LetterController` with OpenAPI annotations and contract tests
+- [ ] T026 [US1] Add Micrometer timers and structured logging for correlation IDs across controller/service/client layers
+- [ ] T027 [US1] Record fallback incidents to persistent audit store (if enabled)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -109,16 +111,16 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T020 [P] [US2] Contract test for new request fields/version headers in `src/test/java/.../contract/LetterContractV2Test.java`
-- [ ] T021 [P] [US2] Rendering regression test for new template variant (locale, tone) in `src/test/java/.../templates/...`
-- [ ] T022 [US2] Integration test simulating LLM retry/exponential backoff vs provider throttling
+- [ ] T030 [P] [US2] Contract test for new request fields/version headers in `src/test/java/.../contract/LetterContractV2Test.java`
+- [ ] T031 [P] [US2] Rendering regression test for new template variant (locale, tone) in `src/test/java/.../templates/...`
+- [ ] T032 [US2] Integration test simulating LLM retry/exponential backoff vs provider throttling
 
 ### Implementation for User Story 2
 
-- [ ] T023 [P] [US2] Extend prompt builder to support locale/tone switches in `src/main/java/.../llm/PromptBuilder.java`
-- [ ] T024 [US2] Update email renderer to select correct template pair and ensure accessibility annotations
-- [ ] T025 [US2] Wire API version negotiation or feature flags while keeping v1 contract intact
-- [ ] T026 [US2] Update metrics/alerts for the new variant-specific KPIs
+- [ ] T033 [P] [US2] Extend prompt builder to support locale/tone switches in `src/main/java/.../llm/PromptBuilder.java`
+- [ ] T034 [US2] Update email renderer to select correct template pair and ensure accessibility annotations
+- [ ] T035 [US2] Wire API version negotiation or feature flags while keeping v1 contract intact
+- [ ] T036 [US2] Update metrics/alerts for the new variant-specific KPIs
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -132,16 +134,16 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T027 [P] [US3] Contract test for new metadata/attachments (if any) using WireMock for downstream dependencies
-- [ ] T028 [P] [US3] Load test scenario for throughput/latency budgets using Gatling or k6
-- [ ] T029 [US3] Integration test for fallback escalation path (e.g., queueing manual review)
+- [ ] T040 [P] [US3] Contract test for new metadata/attachments (if any) using WireMock for downstream dependencies
+- [ ] T041 [P] [US3] Load test scenario for throughput/latency budgets using Gatling or k6
+- [ ] T042 [US3] Integration test for fallback escalation path (e.g., queueing manual review)
 
 ### Implementation for User Story 3
 
-- [ ] T030 [P] [US3] Introduce new domain model (e.g., Attachment, ChannelPreference) with validation + persistence if required
-- [ ] T031 [US3] Extend orchestrator to branch logic (LLM vs manual template) based on policy engine result
-- [ ] T032 [US3] Implement supporting scheduler/queue integration if escalations need async handling
-- [ ] T033 [US3] Update observability dashboards and alerts for new flow variants
+- [ ] T043 [P] [US3] Introduce new domain model (e.g., Attachment, ChannelPreference) with validation + persistence if required
+- [ ] T044 [US3] Extend orchestrator to branch logic (LLM vs manual template) based on policy engine result
+- [ ] T045 [US3] Implement supporting scheduler/queue integration if escalations need async handling
+- [ ] T046 [US3] Update observability dashboards and alerts for new flow variants
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -161,6 +163,7 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] TXXX [P] Additional unit tests or snapshot refreshes in `src/test/java` and `src/test/resources`
 - [ ] TXXX Security hardening (secret rotation, prompt redaction review)
 - [ ] TXXX Run quickstart.md validation plus staging send-down audit
+- [ ] TXXX Execute `scripts/deploy-cloudrun.sh` dry run, verify Cloud Run revision stays within Always Free tier limits, and capture rollout notes
 
 ---
 
@@ -188,7 +191,7 @@ Examples of foundational tasks (adjust based on your project):
 - Services before endpoints
 - Core implementation before integration
 - Story complete before moving to next priority
-- Honor contract-first, LLM safety, and rich-email integrity guardrails for every change; document exceptions in the Complexity Tracking log
+- Honor contract-first, LLM safety, rich-email integrity, and containerization/GCP guardrails for every change; document exceptions in the Complexity Tracking log
 
 ### Parallel Opportunities
 
