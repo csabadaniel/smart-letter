@@ -14,7 +14,7 @@
 **Language/Version**: Java 21 (Spring Boot 3.3.x)  
 **Primary Dependencies**: Spring Web, Spring WebClient, Spring Validation, Thymeleaf, Spring Mail, Micrometer (note deviations explicitly)  
 **Storage**: PostgreSQL email audit log (state `N/A` only if the feature is entirely stateless) plus Cloud Firestore (Datastore mode) for permanent application settings kept within Always Free quotas  
-**Testing**: JUnit 5, Spring Boot Test, AssertJ, Mockito, Spring Cloud Contract, Testcontainers, Cucumber JVM/JGiven  
+**Testing**: JUnit 5, Spring Boot Test, AssertJ, Mockito, Spring Cloud Contract, Testcontainers, Cucumber JVM  
 **Target Platform**: Linux container (x86_64) behind the shared HTTPS gateway  
 **Project Type**: Backend microservice with isolated **test** and **production** Cloud Run services  
 **Performance Goals**: LLM round-trip < 3s p95, email dispatch < 5s p95 unless tighter SLAs are required  
@@ -34,7 +34,7 @@
 - **Swagger UI exposure**: Swagger/OpenAPI bundle location, route (`/swagger-ui`), auth method (IAP/basic), and manual test plan are documented; Try-It-Out policy is stated (Service Guardrails).
 - **API key policy**: Header name, rotation cadence, storage (Secret Manager), and rate limiting/audit plan are specified, plus how Swagger UI accepts user-provided keys (Service Guardrails).
 - **INVEST cadence**: Feature stories are decomposed into INVEST slices with clearly stated acceptance criteria, estimated effort, and iteration order; WIP limits and incremental delivery plan are captured (Workflow & Quality Gates).
-- **TDD/BDD plan**: Identify which stories will add JUnit/AssertJ unit tests, Spring Cloud Contract stubs, Testcontainers flows, and Gherkin scenarios (Cucumber). Note how “red → green → refactor” evidence will be captured in commits/PRs (Workflow & Quality Gates).
+- **TDD/BDD plan**: Identify which stories will add JUnit/AssertJ unit tests, Spring Cloud Contract stubs, Testcontainers flows, and Gherkin scenarios (Cucumber JVM). Note how “red → green → refactor” evidence will be captured in commits/PRs (Workflow & Quality Gates).
 - **IaC readiness**: Document the Terraform/Pulumi modules (or scripted `gcloud` tooling) under `/infra/`, what resources they manage (Cloud Run, Artifact Registry, Secret Manager, IAM, monitoring), how state is stored, and where the `plan` output will be attached for review.
 - **Persistent settings**: Describe new or updated Firestore entities/documents (kinds, collection paths, indexes), default values, migration approach (seed scripts or IaC), and how Always Free quotas will be respected.
 - **CI/CD automation**: Reference the GitHub Actions workflows (e.g., `.github/workflows/ci.yml`, `deploy-prod.yml`), triggers (push, merge), secrets, and promotion logic. Explain how quality gates (tests, coverage, Terraform plan, SBOM, container scan) feed deployment jobs and how failures block the test/prod deploy steps.

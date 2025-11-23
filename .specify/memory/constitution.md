@@ -39,7 +39,7 @@ Follow-ups:
 
 ### IV. Test-Driven & Behavior-Driven Delivery
 - Every change starts with failing unit and contract tests written in JUnit 5 + AssertJ (for services/controllers) and Spring Cloud Contract or WireMock stubs (for integrations). Production code cannot be authored before the corresponding test exists and fails (Red → Green → Refactor cycle).
-- Acceptance criteria are captured as executable Gherkin scenarios (Cucumber JVM or JGiven) that exercise end-to-end flows—including prompt building, LLM call, email rendering, and fallback logic. Each user story must contribute at least one new or updated scenario.
+- Acceptance criteria are captured as executable Gherkin scenarios using Cucumber JVM that exercise end-to-end flows—including prompt building, LLM call, email rendering, and fallback logic. Each user story must contribute at least one new or updated scenario.
 - Regression safety requires Testcontainers-backed integration suites for external dependencies (LLM mock, SMTP provider) plus deterministic snapshots for HTML output. Test suites run in CI on every PR and must complete in <10 minutes.
 *Rationale*: TDD + BDD keep the service verifiable, encourage incremental delivery, and document system behavior in a user-centric language.
 
@@ -67,7 +67,7 @@ Follow-ups:
 ## Workflow & Quality Gates
 
 - **Definition of Ready**: A feature cannot enter implementation until the OpenAPI delta, prompt contract, and email template outline are documented, along with acceptance tests for success/failure paths.
-- **Testing Expectations**: Follow strict TDD: write/commit failing JUnit 5 tests (with AssertJ + Mockito) before implementation, then add code until tests pass. BDD suites (Cucumber JVM or JGiven) must express each INVEST story’s acceptance criteria in Gherkin, run in CI, and stay green. Contract tests (Spring Cloud Contract), Testcontainers integrations, and template snapshots are non-optional for touched components.
+- **Testing Expectations**: Follow strict TDD: write/commit failing JUnit 5 tests (with AssertJ + Mockito) before implementation, then add code until tests pass. BDD suites (Cucumber JVM) must express each INVEST story’s acceptance criteria in Gherkin, run in CI, and stay green. Contract tests (Spring Cloud Contract), Testcontainers integrations, and template snapshots are non-optional for touched components.
 - **Container Readiness**: Before coding begins, teams must document container resource budgets, Cloud Run service settings (region, concurrency, memory), and how the change preserves Always Free limits. Every feature plan must include build/push automation steps.
 - **Swagger Availability**: Definition of Ready also requires confirming the Swagger UI route, auth mechanism, and sample credentials for QA; all new/changed endpoints must be manually exercised through Swagger before code review completes.
 - **INVEST User Stories**: Every feature spec and plan must decompose work into INVEST-compliant stories (Independent, Negotiable, Valuable, Estimable, Small, Testable). Stories must articulate measurable acceptance criteria and can be shipped incrementally without blocking others.
