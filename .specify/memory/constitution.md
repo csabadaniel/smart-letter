@@ -1,9 +1,8 @@
 <!--
 Sync Impact Report
-Version: 1.2.0 → 1.3.0
+Version: 1.3.0 → 1.4.0
 Modified Principles:
-- Service Guardrails (API key auth + Swagger support)
-- Workflow & Quality Gates (Definition of Ready/Release Gate enforce API key handling)
+- Workflow & Quality Gates (INVEST user story and incremental delivery requirements)
 Added Sections:
 - None
 Removed Sections:
@@ -56,6 +55,8 @@ Follow-ups:
 - **Testing Expectations**: Unit tests back every controller/service; contract tests stub the LLM client; snapshot/integration tests render HTML + plaintext outputs; at least one automated scenario exercises the full request → LLM → email pipeline using recorded fixtures.
 - **Container Readiness**: Before coding begins, teams must document container resource budgets, Cloud Run service settings (region, concurrency, memory), and how the change preserves Always Free limits. Every feature plan must include build/push automation steps.
 - **Swagger Availability**: Definition of Ready also requires confirming the Swagger UI route, auth mechanism, and sample credentials for QA; all new/changed endpoints must be manually exercised through Swagger before code review completes.
+- **INVEST User Stories**: Every feature spec and plan must decompose work into INVEST-compliant stories (Independent, Negotiable, Valuable, Estimable, Small, Testable). Stories must articulate measurable acceptance criteria and can be shipped incrementally without blocking others.
+- **Incremental Delivery Cadence**: Work proceeds in short iterations. Each iteration targets the smallest shippable story, updates docs/tasks to reflect status, and must be demonstrable through Swagger or automated tests. Backlog stories stay prioritized; WIP limits prevent more than two simultaneous stories per engineer.
 - **Code Review Checklist**: PRs must cite which principle they satisfy, attach contract diffs, and show evidence that fallbacks, validation, accessibility checks, containerization/GCP deployment updates, and API key handling are covered. No merge if any checklist item is unresolved.
 - **Release Gate**: A release candidate must pass container image scans, complete a successful `gcloud run deploy` dry-run with Always Free settings, demonstrate zero critical alerts in staging for 24 hours, produce a sample outbound email approved by product/UX, and expose the matching Swagger UI with the latest OpenAPI schema accessible to QA via API key authentication.
 
@@ -63,4 +64,4 @@ Follow-ups:
 
 This constitution supersedes other development practices for the Smart Letter service. Amendments require an RFC describing the motivation, risk assessment, and migration plan, plus approval from the service tech lead and product owner. Version changes follow semantic rules: MAJOR for removals or redefinitions of principles/sections, MINOR for new principles or expanded guardrails, PATCH for clarifications that do not change obligations. Every merged feature plan/spec/tasks document must include a "Constitution Check" section that records compliance evidence. The release engineer schedules quarterly compliance reviews; any violations must be remediated before the next release or explicitly waived with documented risk acceptance.
 
-**Version**: 1.3.0 | **Ratified**: 2025-11-22 | **Last Amended**: 2025-11-23
+**Version**: 1.4.0 | **Ratified**: 2025-11-22 | **Last Amended**: 2025-11-23

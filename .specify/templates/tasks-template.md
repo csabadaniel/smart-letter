@@ -199,7 +199,8 @@ Examples of foundational tasks (adjust based on your project):
 - Services before endpoints
 - Core implementation before integration
 - Story complete before moving to next priority
-- Honor contract-first, LLM safety, rich-email integrity, containerization/GCP, Swagger UI exposure, and API key guardrails for every change; document exceptions in the Complexity Tracking log
+- Honor contract-first, LLM safety, rich-email integrity, containerization/GCP, Swagger UI exposure, API key guardrails, and INVEST constraints for every change; document exceptions in the Complexity Tracking log
+- Keep WIP low: no engineer should own more than two concurrent stories; finish INVEST slices before starting new ones and capture iteration demos in docs/specs
 
 ### Parallel Opportunities
 

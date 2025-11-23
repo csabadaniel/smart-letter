@@ -20,7 +20,7 @@
   - Demonstrated to users independently
 -->
 
-> Constitution alignment: at least one P1 story must exercise the full request → LLM → email pipeline, document the fallback narrative, and state how accessibility + observability requirements are verified.
+> Constitution alignment: at least one P1 story must exercise the full request → LLM → email pipeline, document the fallback narrative, and state how accessibility + observability requirements are verified. Every story you capture MUST meet INVEST (Independent, Negotiable, Valuable, Estimable, Small, Testable) so it can ship on its own.
 
 ### User Story 1 - [Brief Title] (Priority: P1)
 
@@ -155,3 +155,4 @@
 - **SC-006**: Cloud Run revisions stay within Always Free quotas (≤2M requests/month, ≤360k vCPU-seconds) while keeping cold-start latency < 2 seconds and steady-state latency < 1 second p95.
 - **SC-007**: Swagger UI is reachable in staging and production with current OpenAPI docs, enforced auth, and recorded manual test evidence per release.
 - **SC-008**: 100% of API keys rotate within the mandated window (≤90 days) with audit logs demonstrating issuance, rotation, and revocation events.
+- **SC-009**: Every delivered iteration ships at least one INVEST-compliant story with all acceptance tests automated or documented, and no in-flight story remains open for more than two iterations.
