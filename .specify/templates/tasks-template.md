@@ -51,13 +51,13 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Scaffold Spring Boot 3.3 project (Gradle) with base package `com.smartletter`
+- [ ] T001 Scaffold Spring Boot 3.3 project (Maven, using `./mvnw`) with base package `com.smartletter`
 - [ ] T002 Add baseline OpenAPI contract under `docs/contracts/openapi.yaml` and wire swagger generation task
 - [ ] T003 [P] Configure Spotless/Checkstyle, Error Prone, and formatter rules matching constitution guardrails
 - [ ] T004 [P] Set up Git hooks/CI jobs that block merges when constitution checks fail, including `test`, `bddTest`, and `contractTest` gates
 - [ ] T005 [P] Add Springdoc OpenAPI + Swagger UI dependencies, seed `/swagger-ui` route, and disable Try-It-Out by default
 - [ ] T006 Define API key header (`X-SmartLetter-Api-Key`), add sample property placeholders, and document rotation procedures in `docs/security/api-keys.md`
-- [ ] T007 [P] Install and verify the baseline testing toolchain (JUnit 5, AssertJ, Mockito, Spring Cloud Contract, Testcontainers, Cucumber JVM) with Gradle tasks (`test`, `contractTest`, `bddTest`) and document how to run them before implementation starts
+- [ ] T007 [P] Install and verify the baseline testing toolchain (JUnit 5, AssertJ, Mockito, Spring Cloud Contract, Testcontainers, Cucumber JVM) with Maven goals (`./mvnw test`, `./mvnw verify -Pcucumber`) and document how to run them before implementation starts
 - [ ] T008 [P] Initialize `/infra/terraform` (or `/infra/pulumi`) modules covering Cloud Run, Artifact Registry, Secret Manager, IAM, and monitoring resources; configure remote/state storage and module README.
 - [ ] T009 [P] Add CI automation that runs `terraform fmt`, `terraform validate`, and `terraform plan` (or Pulumi preview) on every PR touching `/infra/`, attaching the plan artifact to the review.
 - [ ] T010 [P] Author `.github/workflows/ci.yml` that runs lint + TDD/BDD/contract suites, coverage gates, Terraform plan, container build+scan, SBOM upload, and auto-deploy to the test Cloud Run service when all checks pass.
@@ -89,7 +89,7 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T025 Add automated check ensuring the deployed OpenAPI JSON matches `docs/contracts/openapi.yaml` and is linked from Swagger UI
 - [ ] T026 [P] Create shared Cucumber JVM assets (`src/test/resources/features`, glue packages), seed sample feature mapping to US1, and document naming conventions
 - [ ] T027 Wire Spring Cloud Contract + Testcontainers base classes into CI so `contractTest` and `bddTest` fail the build when scenarios are missing or out-of-date
-- [ ] T028 [P] Add Cloud Firestore (Datastore mode) emulator dependencies, Gradle tasks, and docker-compose entry so integration tests can run offline; document how to seed data before each suite.
+- [ ] T028 [P] Add Cloud Firestore (Datastore mode) emulator dependencies, Maven profiles/goals, and docker-compose entry so integration tests can run offline; document how to seed data before each suite.
 - [ ] T029 Implement `AppSettingRepository` + caching layer under `src/main/java/.../settings/`, including optimistic locking/version stamping and Micrometer metrics for reads/writes.
 - [ ] T030 [P] Create IaC + migration scripts (Terraform seeding, JSON fixtures, or Spring Boot runner) that provision default application settings while keeping quotas within Always Free limits (<= 1 GB storage, <= 50k reads/day).
 - [ ] T031 Wire GitHub Actions environments (`test`, `production`) to Cloud Run service accounts, configure required approvals for production, and document environment protection rules.

@@ -1,9 +1,8 @@
 <!--
 Sync Impact Report
-Version: 1.8.0 → 1.9.0
+Version: 1.9.0 → 1.10.0
 Modified Principles:
-- Service Guardrails: Continuous delivery now must flow through GitHub Actions pipelines per environment with Always Free quota enforcement; persistent settings and GCP deployment quotas clarified with ASCII limits
-- Workflow & Quality Gates: Added continuous delivery evidence gate plus documentation encoding discipline mandating ASCII text with GitHub Markdown emoji codes only
+- Service Guardrails: Standard build tooling now mandates Maven (via Maven Wrapper) instead of Gradle to keep developer workflows consistent
 Added Sections:
 - None
 Removed Sections:
@@ -52,7 +51,7 @@ Follow-ups:
 
 ## Service Guardrails
 
-- **Runtime Stack**: Java 21, Spring Boot 3.3.x, Gradle build, Spring MVC controllers, Spring WebClient for outbound HTTP, and Spring Mail/Jakarta Mail for SMTP. Deviations require architecture approval.
+- **Runtime Stack**: Java 21, Spring Boot 3.3.x, Maven build (enforced via Maven Wrapper `./mvnw`), Spring MVC controllers, Spring WebClient for outbound HTTP, and Spring Mail/Jakarta Mail for SMTP. Deviations require architecture approval.
 - **LLM Integration**: Use HTTPS JSON APIs with API-key auth stored in the secrets manager; prompts live in `src/main/resources/prompts/` and must be versioned.
 - **Email Delivery**: Store templates in `src/main/resources/templates/` with paired HTML/text variants, and send via a provider that supports rich text (e.g., SES, Postmark). Capture provider message IDs for traceability.
 - **Configuration & Secrets**: Manage via Spring Config + environment variables; never persist raw LLM responses beyond transient processing logs.
@@ -84,4 +83,4 @@ Follow-ups:
 
 This constitution supersedes other development practices for the Smart Letter service. Amendments require an RFC describing the motivation, risk assessment, and migration plan, plus approval from the service tech lead and product owner. Version changes follow semantic rules: MAJOR for removals or redefinitions of principles/sections, MINOR for new principles or expanded guardrails, PATCH for clarifications that do not change obligations. Every merged feature plan/spec/tasks document must include a "Constitution Check" section that records compliance evidence. PRs without a completed "Constitution Check" section must be rejected during review. The release engineer schedules quarterly compliance reviews; any violations must be remediated before the next release or explicitly waived with documented risk acceptance.
 
-**Version**: 1.9.0 | **Ratified**: 2025-11-22 | **Last Amended**: 2025-11-23
+**Version**: 1.10.0 | **Ratified**: 2025-11-22 | **Last Amended**: 2025-11-23
