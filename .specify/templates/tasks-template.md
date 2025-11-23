@@ -84,6 +84,9 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T022 Add automated check ensuring the deployed OpenAPI JSON matches `docs/contracts/openapi.yaml` and is linked from Swagger UI
 - [ ] T023 [P] Create shared BDD assets (`src/test/resources/features`, glue packages, JGiven stages), seed sample feature mapping to US1, and document naming conventions
 - [ ] T024 Wire Spring Cloud Contract + Testcontainers base classes into CI so `contractTest` and `bddTest` fail the build when scenarios are missing or out-of-date
+- [ ] T025 [P] Add Cloud Firestore (Datastore mode) emulator dependencies, Gradle tasks, and docker-compose entry so integration tests can run offline; document how to seed data before each suite.
+- [ ] T026 Implement `AppSettingRepository` + caching layer under `src/main/java/.../settings/`, including optimistic locking/version stamping and Micrometer metrics for reads/writes.
+- [ ] T027 [P] Create IaC + migration scripts (Terraform seeding, JSON fixtures, or Spring Boot runner) that provision default application settings while keeping quotas within Always Free limits (≤1 GB storage, ≤50k reads/day).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -181,6 +184,7 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] TXXX Execute `scripts/deploy-cloudrun.sh` dry run, verify Cloud Run revision stays within Always Free tier limits, and capture rollout notes
 - [ ] TXXX Validate Swagger UI (auth, Try-It-Out policy, OpenAPI hash) in staging/production and attach manual test evidence
 - [ ] TXXX Audit API key rotation logs, revoke unused keys, and document evidence for the release
+- [ ] TXXX Capture Firestore usage metrics (storage, daily reads/writes) and attach screenshots/logs proving the service remains within Always Free limits; document any migrations applied this release.
 
 ---
 

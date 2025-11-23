@@ -13,12 +13,12 @@
 
 **Language/Version**: Java 21 (Spring Boot 3.3.x)  
 **Primary Dependencies**: Spring Web, Spring WebClient, Spring Validation, Thymeleaf, Spring Mail, Micrometer (note deviations explicitly)  
-**Storage**: PostgreSQL email audit log (state `N/A` only if the feature is entirely stateless)  
+**Storage**: PostgreSQL email audit log (state `N/A` only if the feature is entirely stateless) plus Cloud Firestore (Datastore mode) for permanent application settings kept within Always Free quotas  
 **Testing**: JUnit 5, Spring Boot Test, AssertJ, Mockito, Spring Cloud Contract, Testcontainers, Cucumber JVM/JGiven  
 **Target Platform**: Linux container (x86_64) behind the shared HTTPS gateway  
 **Project Type**: Backend microservice  
 **Performance Goals**: LLM round-trip < 3s p95, email dispatch < 5s p95 unless tighter SLAs are required  
-**Constraints**: Contract-first OpenAPI, HTML + plaintext email pairing, deterministic fallback path, Micrometer metrics for llm/email events, authenticated Swagger UI exposure, API key enforcement via `X-SmartLetter-Api-Key`, and INVEST-compliant story slicing  
+**Constraints**: Contract-first OpenAPI, HTML + plaintext email pairing, deterministic fallback path, Micrometer metrics for llm/email events, authenticated Swagger UI exposure, API key enforcement via `X-SmartLetter-Api-Key`, INVEST-compliant story slicing, and Firestore-backed persistent settings managed via IaC  
 **Scale/Scope**: Baseline 10k rich-text emails per day; override with feature-specific demand if known  
 **Containerization & Deployment**: Build OCI images via Paketo Buildpacks or Jib, publish to Artifact Registry, and target Cloud Run (Always Free tier: ≤1 vCPU, ≤256 MiB, ≤20 concurrency) with `gcloud run deploy` automation recorded here. Infrastructure provisioning MUST be expressed as code (Terraform, Pulumi, or scripted `gcloud`) stored under `/infra/` in this repository and referenced by branch/tag.
 
@@ -36,6 +36,7 @@
 - **INVEST cadence**: Feature stories are decomposed into INVEST slices with clearly stated acceptance criteria, estimated effort, and iteration order; WIP limits and incremental delivery plan are captured (Workflow & Quality Gates).
 - **TDD/BDD plan**: Identify which stories will add JUnit/AssertJ unit tests, Spring Cloud Contract stubs, Testcontainers flows, and Gherkin scenarios (Cucumber). Note how “red → green → refactor” evidence will be captured in commits/PRs (Workflow & Quality Gates).
 - **IaC readiness**: Document the Terraform/Pulumi modules (or scripted `gcloud` tooling) under `/infra/`, what resources they manage (Cloud Run, Artifact Registry, Secret Manager, IAM, monitoring), how state is stored, and where the `plan` output will be attached for review.
+- **Persistent settings**: Describe new or updated Firestore entities/documents (kinds, collection paths, indexes), default values, migration approach (seed scripts or IaC), and how Always Free quotas will be respected.
 
 ### Project Structure
 
@@ -62,6 +63,7 @@ src/main/java/com/smartletter/
 ├── llm/            # Client, prompt builders, safety filters
 ├── email/          # Template renderers + deliverability utilities
 ├── service/        # Domain orchestration
+├── settings/       # Firestore repositories, DTOs, cache, migrations
 └── config/         # Spring configuration, metrics, exception mapping
 
 src/main/resources/
@@ -72,13 +74,14 @@ src/main/resources/
 src/test/java/com/smartletter/
 ├── contract/       # LLM + SMTP contract tests
 ├── integration/    # request → LLM → email flow
-└── unit/
+├── unit/
+└── firestore/      # Emulator-based tests for permanent settings access patterns
 
 src/test/resources/
 └── templates/__snapshots__/   # Email snapshot baselines
 
 infra/
-├── terraform/ or pulumi/      # Infrastructure as code modules for Cloud Run, Artifact Registry, secrets, IAM, monitoring
+├── terraform/ or pulumi/      # Infrastructure as code modules for Cloud Run, Artifact Registry, Firestore, secrets, IAM, monitoring
 ├── cloudrun/service.yaml      # Cloud Run defaults (region, CPU/memory, concurrency)
 ├── scripts/deploy-cloudrun.sh # `gcloud run deploy` helper (mirrors IaC settings)
 ├── Dockerfile (optional)      # Only if deviating from Buildpacks/Jib defaults

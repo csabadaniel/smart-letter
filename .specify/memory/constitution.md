@@ -1,10 +1,10 @@
 <!--
 Sync Impact Report
-Version: 1.5.0 → 1.6.0
+Version: 1.6.0 → 1.7.0
 Modified Principles:
-- Added Core Principle V (Infrastructure as Code Stewardship)
+- Service Guardrails now mandate a Cloud Firestore (Datastore mode) store for permanent settings
 Added Sections:
-- Workflow gates updated with IaC evidence requirements
+- Workflow gate update covering settings management evidence
 Removed Sections:
 - None
 Templates:
@@ -55,6 +55,7 @@ Follow-ups:
 - **LLM Integration**: Use HTTPS JSON APIs with API-key auth stored in the secrets manager; prompts live in `src/main/resources/prompts/` and must be versioned.
 - **Email Delivery**: Store templates in `src/main/resources/templates/` with paired HTML/text variants, and send via a provider that supports rich text (e.g., SES, Postmark). Capture provider message IDs for traceability.
 - **Configuration & Secrets**: Manage via Spring Config + environment variables; never persist raw LLM responses beyond transient processing logs.
+- **Persistent Settings Store**: Permanent application settings (feature toggles, personalization defaults, provider knobs) must live in Cloud Firestore (Datastore mode) configured to remain within the Always Free tier (≤1 GB storage, ≤50k reads/day). Access them through a dedicated repository/service layer (`AppSettingStore`) that enforces read caching, optimistic concurrency, and change auditing. IaC must provision collections/indexes; no manual console edits.
 - **Observability**: Emit Micrometer metrics (`llm.latency`, `email.sent`, `email.fallback_triggered`) and structured logs with trace IDs propagated through LLM and SMTP calls. Alerts fire when fallback rates exceed 1% per hour.
 - **Containerization & Artifacts**: Every build must produce a reproducible OCI image using Paketo Buildpacks or Jib, pinned to distroless or Alpine base images with non-root users. Images are published to GCP Artifact Registry with SBOM metadata and vulnerability scanning enabled.
 - **GCP Deployment**: The service runs on Cloud Run (regional) configured to stay within the Always Free tier (≤ 1 vCPU, ≤ 256 MiB memory, 2M requests/month). Set max concurrency ≤ 20, request timeout ≤ 60s, and CPU allocation `on-demand` to honor the cost envelope. Use Cloud Secret Manager for API keys and Cloud Logging/Monitoring for runtime telemetry. Persistent state must not rely on writable container filesystem; use GCP managed services instead.
@@ -72,10 +73,11 @@ Follow-ups:
 - **Incremental Delivery Cadence**: Work proceeds in short iterations. Each iteration targets the smallest shippable story, updates docs/tasks to reflect status, and must be demonstrable through Swagger or automated tests. Backlog stories stay prioritized; WIP limits prevent more than two simultaneous stories per engineer.
 - **Code Review Checklist**: PRs must cite which principle they satisfy, attach contract diffs, and show evidence that fallbacks, validation, accessibility checks, containerization/GCP deployment updates, and API key handling are covered. No merge if any checklist item is unresolved.
 - **Infrastructure as Code Evidence**: Definition of Ready and PR reviews must reference the IaC module paths being touched, include `terraform plan` (or equivalent) output, and describe how state is managed per environment. Any manual change requires a documented remediation plan to bring IaC back in sync within 24 hours.
-- **Release Gate**: A release candidate must pass container image scans, complete a successful `gcloud run deploy` dry-run with Always Free settings driven by the checked-in IaC modules or scripts, demonstrate zero critical alerts in staging for 24 hours, produce a sample outbound email approved by product/UX, expose the matching Swagger UI with the latest OpenAPI schema accessible to QA via API key authentication, and deliver proof that all BDD scenarios and TDD suites ran green on the release candidate. Release notes must link to the IaC change set applied.
+- **Settings Governance**: Each feature plan/spec must declare whether it introduces or updates persistent settings. Implementation MUST include migration scripts or IaC updates for Firestore documents, automated tests proving defaults, and runbooks describing how to roll back values without leaving free tier limits.
+- **Release Gate**: A release candidate must pass container image scans, complete a successful `gcloud run deploy` dry-run with Always Free settings driven by the checked-in IaC modules or scripts, demonstrate zero critical alerts in staging for 24 hours, produce a sample outbound email approved by product/UX, expose the matching Swagger UI with the latest OpenAPI schema accessible to QA via API key authentication, and deliver proof that all BDD scenarios and TDD suites ran green on the release candidate. Release notes must link to the IaC change set applied and include evidence that Firestore settings were migrated via code.
 
 ## Governance
 
 This constitution supersedes other development practices for the Smart Letter service. Amendments require an RFC describing the motivation, risk assessment, and migration plan, plus approval from the service tech lead and product owner. Version changes follow semantic rules: MAJOR for removals or redefinitions of principles/sections, MINOR for new principles or expanded guardrails, PATCH for clarifications that do not change obligations. Every merged feature plan/spec/tasks document must include a "Constitution Check" section that records compliance evidence. The release engineer schedules quarterly compliance reviews; any violations must be remediated before the next release or explicitly waived with documented risk acceptance.
 
-**Version**: 1.6.0 | **Ratified**: 2025-11-22 | **Last Amended**: 2025-11-23
+**Version**: 1.7.0 | **Ratified**: 2025-11-22 | **Last Amended**: 2025-11-23
