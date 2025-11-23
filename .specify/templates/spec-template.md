@@ -80,6 +80,7 @@
 - How does the service respond when Cloud Run cold starts exceed latency budgets or Always Free quotas (requests, CPU, memory) are exhausted mid-flight?
 - What happens if container build/push automation fails or a `gcloud run deploy` rollback is required?
 - How is Swagger UI protected in production, and what happens when Try-It-Out is disabled or when the OpenAPI doc is out of sync with the deployed version?
+- How are API keys provisioned, rotated, revoked, and prevented from leaking (e.g., logging, Swagger UI inputs, browser storage)?
 
 ## Requirements *(mandatory)*
 
@@ -98,12 +99,13 @@
 - **FR-006**: The system MUST emit Micrometer metrics/logs for correlation IDs, LLM latency, email-send outcomes, and fallback activations.
 - **FR-007**: CI/CD MUST build an OCI image using Paketo Buildpacks or Jib, generate an SBOM, and push the artifact to Artifact Registry with vulnerability scanning enforced.
 - **FR-008**: Deployments MUST target Cloud Run with Always Free settings (≤1 vCPU, ≤256 MiB memory, ≤20 concurrency) and document the exact `gcloud run deploy` or Terraform invocation.
-- **FR-009**: Swagger UI MUST be deployed in every environment, sourced from the same `docs/contracts/openapi.yaml`, protected via identity-aware proxy or Basic Auth with audit logging, and include explicit Try-It-Out policies for production.
+- **FR-009**: The service MUST authenticate every request via `X-SmartLetter-Api-Key`, enforcing 32+ byte entropy, constant-time comparisons, per-key rate limits, and rotation automation backed by Cloud Secret Manager.
+- **FR-010**: Swagger UI MUST be deployed in every environment, source the same `docs/contracts/openapi.yaml`, prompt users for an API key (never storing it), and apply the same backend authentication pipeline when Try-It-Out is enabled.
 
 *Example of marking unclear requirements:*
 
-- **FR-010**: System MUST deliver email through [NEEDS CLARIFICATION: provider not specified - SES, Postmark, SMTP relay?]
-- **FR-011**: LLM prompt instructions MUST support [NEEDS CLARIFICATION: languages/tones not defined]
+- **FR-011**: System MUST deliver email through [NEEDS CLARIFICATION: provider not specified - SES, Postmark, SMTP relay?]
+- **FR-012**: LLM prompt instructions MUST support [NEEDS CLARIFICATION: languages/tones not defined]
 
 ### LLM & Email Safeguards *(constitution-required)*
 
@@ -120,12 +122,20 @@
 - Capture the exact `gcloud run deploy` or infrastructure-as-code commands, including environment variables and Secret Manager references.
 - Define rollback/blue-green strategy and how cold-start latency will be measured and enforced.
 
+-### Access Control & API Keys *(constitution-required)*
+
+- Document the API key header name, minimum length/entropy, and lifecycle (creation, rotation, revocation) per environment.
+- Specify how keys are stored (Cloud Secret Manager) and injected into Cloud Run, plus audit logging strategy for authentication success/failure.
+- Describe rate limiting/quota rules per key and how breaches trigger alerts.
+- Explain how Swagger UI collects the key from the user without persisting it (session storage, clipboard) and verifies that Try-It-Out uses the same header.
+
 ### Key Entities *(include if feature involves data)*
 
 - **LetterRequest**: Canonical inbound payload containing recipient metadata, personalization tokens, locale, and requested letter type.
 - **PromptContext**: Structured object that assembles system prompt, user content, and safety filters before hitting the LLM endpoint.
 - **EmailRender**: Resulting HTML + plaintext body pair, including accessibility metadata, footer requirements, and links tracked for auditing.
 - **DeployTarget**: Cloud Run configuration object (service name, region, concurrency, env vars, Secret Manager bindings) consumed by deployment scripts.
+- **ApiKeyPolicy**: Defines key format, rotation cadence, allowed scopes/environments, and rate-limit metadata referenced by authentication middleware.
 - **SwaggerEndpoint**: Captures route, auth scheme, allowed users, Try-It-Out policy, and linkage to the OpenAPI artifact per environment.
 
 ## Success Criteria *(mandatory)*
@@ -144,3 +154,4 @@
 - **SC-005**: Container image build + scan completes under 5 minutes and yields zero critical vulnerabilities before deployment.
 - **SC-006**: Cloud Run revisions stay within Always Free quotas (≤2M requests/month, ≤360k vCPU-seconds) while keeping cold-start latency < 2 seconds and steady-state latency < 1 second p95.
 - **SC-007**: Swagger UI is reachable in staging and production with current OpenAPI docs, enforced auth, and recorded manual test evidence per release.
+- **SC-008**: 100% of API keys rotate within the mandated window (≤90 days) with audit logs demonstrating issuance, rotation, and revocation events.

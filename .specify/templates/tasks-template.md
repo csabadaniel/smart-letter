@@ -53,6 +53,7 @@ description: "Task list template for feature implementation"
 - [ ] T003 [P] Configure Spotless/Checkstyle, Error Prone, and formatter rules matching constitution guardrails
 - [ ] T004 [P] Set up Git hooks/CI jobs that block merges when constitution checks fail
 - [ ] T005 [P] Add Springdoc OpenAPI + Swagger UI dependencies, seed `/swagger-ui` route, and disable Try-It-Out by default
+- [ ] T006 Define API key header (`X-SmartLetter-Api-Key`), add sample property placeholders, and document rotation procedures in `docs/security/api-keys.md`
 
 ---
 
@@ -64,17 +65,19 @@ description: "Task list template for feature implementation"
 
 Examples of foundational tasks (adjust based on your project):
 
-- [ ] T006 Create shared DTOs, validation annotations, and exception mappers for `POST /letters`
-- [ ] T007 [P] Implement shared `SmartLetterLlmClient` with WebClient, timeouts, retry/backoff, and prompt redaction utilities
-- [ ] T008 Configure email templating directories (`src/main/resources/templates/`) plus Thymeleaf + sanitizer configuration
-- [ ] T009 Configure Spring Mail provider credentials, provider-specific headers, and health probes
-- [ ] T010 Add Micrometer metrics, tracing filters, and log correlation for request → LLM → email path
-- [ ] T011 Define deterministic fallback email content and store snapshots under `src/test/resources/templates/__snapshots__/`
-- [ ] T012 Setup environment configuration management (Spring Config + secrets manager bindings)
-- [ ] T013 [P] Configure Paketo Buildpacks or Jib settings (including SBOM generation) and ensure the resulting image runs as non-root
-- [ ] T014 [P] Create Artifact Registry repository, `infra/cloudrun/service.yaml`, and `scripts/deploy-cloudrun.sh` with Always Free tier limits baked in
-- [ ] T015 [P] Secure `/swagger-ui` with IAP or Basic Auth, document QA credentials, and wire audit logging for usage
-- [ ] T016 Add automated check ensuring the deployed OpenAPI JSON matches `docs/contracts/openapi.yaml` and is linked from Swagger UI
+- [ ] T007 Create shared DTOs, validation annotations, and exception mappers for `POST /letters`
+- [ ] T008 [P] Implement shared `SmartLetterLlmClient` with WebClient, timeouts, retry/backoff, and prompt redaction utilities
+- [ ] T009 Configure email templating directories (`src/main/resources/templates/`) plus Thymeleaf + sanitizer configuration
+- [ ] T010 Configure Spring Mail provider credentials, provider-specific headers, and health probes
+- [ ] T011 Add Micrometer metrics, tracing filters, and log correlation for request → LLM → email path
+- [ ] T012 Define deterministic fallback email content and store snapshots under `src/test/resources/templates/__snapshots__/`
+- [ ] T013 Setup environment configuration management (Spring Config + secrets manager bindings)
+- [ ] T014 [P] Configure Paketo Buildpacks or Jib settings (including SBOM generation) and ensure the resulting image runs as non-root
+- [ ] T015 [P] Create Artifact Registry repository, `infra/cloudrun/service.yaml`, and `scripts/deploy-cloudrun.sh` with Always Free tier limits baked in
+- [ ] T016 [P] Implement API key authentication filter/interceptor plus constant-time comparison utility in `src/main/java/.../security`
+- [ ] T017 Wire API key storage via Cloud Secret Manager + Spring Config, add rotation cron/runbook, and emit audit logs for auth successes/failures
+- [ ] T018 [P] Secure `/swagger-ui` with IAP or Basic Auth, document QA credentials, and wire audit logging for usage
+- [ ] T019 Add automated check ensuring the deployed OpenAPI JSON matches `docs/contracts/openapi.yaml` and is linked from Swagger UI
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -168,6 +171,7 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] TXXX Run quickstart.md validation plus staging send-down audit
 - [ ] TXXX Execute `scripts/deploy-cloudrun.sh` dry run, verify Cloud Run revision stays within Always Free tier limits, and capture rollout notes
 - [ ] TXXX Validate Swagger UI (auth, Try-It-Out policy, OpenAPI hash) in staging/production and attach manual test evidence
+- [ ] TXXX Audit API key rotation logs, revoke unused keys, and document evidence for the release
 
 ---
 
@@ -195,7 +199,7 @@ Examples of foundational tasks (adjust based on your project):
 - Services before endpoints
 - Core implementation before integration
 - Story complete before moving to next priority
-- Honor contract-first, LLM safety, rich-email integrity, containerization/GCP, and Swagger UI exposure guardrails for every change; document exceptions in the Complexity Tracking log
+- Honor contract-first, LLM safety, rich-email integrity, containerization/GCP, Swagger UI exposure, and API key guardrails for every change; document exceptions in the Complexity Tracking log
 
 ### Parallel Opportunities
 
