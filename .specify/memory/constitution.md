@@ -1,9 +1,9 @@
 <!--
 Sync Impact Report
-Version: 1.0.0 → 1.1.0
+Version: 1.1.0 → 1.2.0
 Modified Principles:
-- Service Guardrails (added containerization + GCP deployment constraints)
-- Workflow & Quality Gates (expanded release and readiness criteria)
+- Service Guardrails (Swagger UI exposure + auth constraints)
+- Workflow & Quality Gates (Definition of Ready and Release Gate call out API docs)
 Added Sections:
 - None
 Removed Sections:
@@ -47,17 +47,19 @@ Follow-ups:
 - **Observability**: Emit Micrometer metrics (`llm.latency`, `email.sent`, `email.fallback_triggered`) and structured logs with trace IDs propagated through LLM and SMTP calls. Alerts fire when fallback rates exceed 1% per hour.
 - **Containerization & Artifacts**: Every build must produce a reproducible OCI image using Paketo Buildpacks or Jib, pinned to distroless or Alpine base images with non-root users. Images are published to GCP Artifact Registry with SBOM metadata and vulnerability scanning enabled.
 - **GCP Deployment**: The service runs on Cloud Run (regional) configured to stay within the Always Free tier (≤ 1 vCPU, ≤ 256 MiB memory, 2M requests/month). Set max concurrency ≤ 20, request timeout ≤ 60s, and CPU allocation `on-demand` to honor the cost envelope. Use Cloud Secret Manager for API keys and Cloud Logging/Monitoring for runtime telemetry. Persistent state must not rely on writable container filesystem; use GCP managed services instead.
+- **Swagger UI Exposure**: Host Swagger UI via Springdoc at `/swagger-ui` (or equivalent) for every environment. Production/staging endpoints must sit behind identity-aware proxy or Basic Auth with per-user audit logging, and the published OpenAPI doc must match the deployed version. Disable Try-It-Out in production unless routed through a dedicated QA service account.
 
 ## Workflow & Quality Gates
 
 - **Definition of Ready**: A feature cannot enter implementation until the OpenAPI delta, prompt contract, and email template outline are documented, along with acceptance tests for success/failure paths.
 - **Testing Expectations**: Unit tests back every controller/service; contract tests stub the LLM client; snapshot/integration tests render HTML + plaintext outputs; at least one automated scenario exercises the full request → LLM → email pipeline using recorded fixtures.
 - **Container Readiness**: Before coding begins, teams must document container resource budgets, Cloud Run service settings (region, concurrency, memory), and how the change preserves Always Free limits. Every feature plan must include build/push automation steps.
+- **Swagger Availability**: Definition of Ready also requires confirming the Swagger UI route, auth mechanism, and sample credentials for QA; all new/changed endpoints must be manually exercised through Swagger before code review completes.
 - **Code Review Checklist**: PRs must cite which principle they satisfy, attach contract diffs, and show evidence that fallbacks, validation, accessibility checks, and containerization/GCP deployment updates are covered. No merge if any checklist item is unresolved.
-- **Release Gate**: A release candidate must pass container image scans, complete a successful `gcloud run deploy` dry-run with Always Free settings, demonstrate zero critical alerts in staging for 24 hours, and produce a sample outbound email approved by product/UX.
+- **Release Gate**: A release candidate must pass container image scans, complete a successful `gcloud run deploy` dry-run with Always Free settings, demonstrate zero critical alerts in staging for 24 hours, produce a sample outbound email approved by product/UX, and expose the matching Swagger UI with the latest OpenAPI schema accessible to QA.
 
 ## Governance
 
 This constitution supersedes other development practices for the Smart Letter service. Amendments require an RFC describing the motivation, risk assessment, and migration plan, plus approval from the service tech lead and product owner. Version changes follow semantic rules: MAJOR for removals or redefinitions of principles/sections, MINOR for new principles or expanded guardrails, PATCH for clarifications that do not change obligations. Every merged feature plan/spec/tasks document must include a "Constitution Check" section that records compliance evidence. The release engineer schedules quarterly compliance reviews; any violations must be remediated before the next release or explicitly waived with documented risk acceptance.
 
-**Version**: 1.1.0 | **Ratified**: 2025-11-22 | **Last Amended**: 2025-11-22
+**Version**: 1.2.0 | **Ratified**: 2025-11-22 | **Last Amended**: 2025-11-23

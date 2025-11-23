@@ -18,7 +18,7 @@
 **Target Platform**: Linux container (x86_64) behind the shared HTTPS gateway  
 **Project Type**: Backend microservice  
 **Performance Goals**: LLM round-trip < 3s p95, email dispatch < 5s p95 unless tighter SLAs are required  
-**Constraints**: Contract-first OpenAPI, HTML + plaintext email pairing, deterministic fallback path, Micrometer metrics for llm/email events  
+**Constraints**: Contract-first OpenAPI, HTML + plaintext email pairing, deterministic fallback path, Micrometer metrics for llm/email events, authenticated Swagger UI exposure in every environment  
 **Scale/Scope**: Baseline 10k rich-text emails per day; override with feature-specific demand if known  
 **Containerization & Deployment**: Build OCI images via Paketo Buildpacks or Jib, publish to Artifact Registry, and target Cloud Run (Always Free tier: ≤1 vCPU, ≤256 MiB, ≤20 concurrency) with `gcloud run deploy` automation recorded here
 
@@ -31,6 +31,7 @@
 - **Email integrity**: HTML + plaintext templates, accessibility requirements, and snapshot testing approach are agreed (Principle III).
 - **Observability/Fallback metrics**: Micrometer metrics, alert thresholds, and release verification plan are listed under Risks/Mitigations.
 - **Container/GCP budget**: Docker/Buildpacks approach, Artifact Registry repo, Cloud Run settings (region, memory, concurrency), and Always Free compliance plan are documented (Service Guardrails).
+- **Swagger UI exposure**: Swagger/OpenAPI bundle location, route (`/swagger-ui`), auth method (IAP/basic), and manual test plan are documented; Try-It-Out policy is stated (Service Guardrails).
 
 ### Project Structure
 
