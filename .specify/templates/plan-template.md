@@ -21,7 +21,7 @@
 **Target Platform**: Linux container (x86_64) behind the shared HTTPS gateway  
 **Project Type**: Backend microservice with isolated **test** and **production** Cloud Run services  
 **Performance Goals**: LLM round-trip < 3s p95, email dispatch < 5s p95 unless tighter SLAs are required  
-**Constraints**: Contract-first OpenAPI, HTML + plaintext email pairing, deterministic fallback path, Micrometer metrics for llm/email events, authenticated Swagger UI exposure, API key enforcement via `X-SmartLetter-Api-Key`, INVEST-compliant story slicing, Firestore-backed persistent settings managed via IaC, and GitHub Actions-based continuous delivery to test (per commit) and production (per merge) environments gated by automated quality checks  
+**Constraints**: Code-first OpenAPI (controllers annotated for Springdoc generation), HTML + plaintext email pairing, deterministic fallback path, Micrometer metrics for llm/email events, authenticated Swagger UI exposure, API key enforcement via `X-SmartLetter-Api-Key`, INVEST-compliant story slicing, Firestore-backed persistent settings managed via IaC, and GitHub Actions-based continuous delivery to test (per commit) and production (per merge) environments gated by automated quality checks  
 **Scale/Scope**: Baseline 10k rich-text emails per day; override with feature-specific demand if known  
 **Containerization & Deployment**: Build OCI images via Paketo Buildpacks or Jib, publish to Artifact Registry, and target Cloud Run (Always Free tier: <= 1 vCPU, <= 256 MiB, <= 20 concurrency) with `gcloud run deploy` automation recorded here. Infrastructure provisioning MUST be expressed as code (Terraform, Pulumi, or scripted `gcloud`) stored under `/infra/` in this repository and referenced by branch/tag.
 
@@ -29,7 +29,7 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design. EVERY bullet below must be explicitly addressed in this plan (with links or rationale) or the gate fails and work cannot advance.*
 
-- **Contract readiness**: OpenAPI delta, DTO validation rules, and backward compatibility strategy are documented and approved (Principle I).
+- **Interface readiness**: Describe which controllers/DTOs change, show the generated OpenAPI diff or preview (`docs/contracts/openapi.yaml`), capture DTO validation rules, and document the backward compatibility strategy (Principle I).
 - **LLM safety**: Prompt contract, redaction controls, timeout budget, and fallback narrative are captured (Principle II).
 - **Email integrity**: HTML + plaintext templates, accessibility requirements, and snapshot testing approach are agreed (Principle III).
 - **Observability/Fallback metrics**: Micrometer metrics, alert thresholds, and release verification plan are listed under Risks/Mitigations.
@@ -53,7 +53,7 @@ specs/[###-feature]/
 ├── research.md          # Phase 0 (/speckit.plan)
 ├── data-model.md        # Phase 1 (/speckit.plan)
 ├── quickstart.md        # Phase 1 (/speckit.plan)
-├── contracts/openapi.yaml   # Contract-first source of truth
+├── contracts/openapi.yaml   # Generated via Springdoc (read-only artifact, never hand-edit)
 ├── deployment.md        # Infra-as-code changelog; links to updated files under /infra/
 └── tasks.md             # Phase 2 (/speckit.tasks)
 ```
@@ -104,7 +104,7 @@ infra/
 
 > **Fill ONLY if Constitution Check has violations that must be justified**
 
-> Use this table to record any deviation from contract-first APIs, the LLM safety envelope, rich-email requirements, or containerization/GCP deployment guardrails.
+> Use this table to record any deviation from code-first OpenAPI governance, the LLM safety envelope, rich-email requirements, or containerization/GCP deployment guardrails.
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|

@@ -52,7 +52,7 @@ description: "Task list template for feature implementation"
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Scaffold Spring Boot 3.3 project (Maven, using `./mvnw`) with base package `com.smartletter`
-- [ ] T002 Add baseline OpenAPI contract under `docs/contracts/openapi.yaml` and wire swagger generation task
+- [ ] T002 Configure Springdoc/OpenAPI code-first generation (annotate baseline controllers) so `./mvnw springdoc-openapi:generate` produces `docs/contracts/openapi.yaml`; document the command in `docs/contracts/README.md`
 - [ ] T003 [P] Configure Spotless/Checkstyle, Error Prone, and formatter rules matching constitution guardrails
 - [ ] T004 [P] Set up Git hooks/CI jobs that block merges when constitution checks fail, including `test`, `bddTest`, and `contractTest` gates
 - [ ] T005 [P] Add Springdoc OpenAPI + Swagger UI dependencies, seed `/swagger-ui` route, and disable Try-It-Out by default
@@ -86,7 +86,7 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T022 [P] Implement API key authentication filter/interceptor plus constant-time comparison utility in `src/main/java/.../security`
 - [ ] T023 Wire API key storage via Cloud Secret Manager + Spring Config, add rotation cron/runbook, and emit audit logs for auth successes/failures
 - [ ] T024 [P] Secure `/swagger-ui` with IAP or Basic Auth, document QA credentials, and wire audit logging for usage
-- [ ] T025 Add automated check ensuring the deployed OpenAPI JSON matches `docs/contracts/openapi.yaml` and is linked from Swagger UI
+- [ ] T025 Add automated check ensuring the deployed OpenAPI JSON matches the generated `docs/contracts/openapi.yaml` and is linked from Swagger UI
 - [ ] T026 [P] Create shared Cucumber JVM assets (`src/test/resources/features`, glue packages), seed sample feature mapping to US1, and document naming conventions
 - [ ] T027 Wire Spring Cloud Contract + Testcontainers base classes into CI so `contractTest` and `bddTest` fail the build when scenarios are missing or out-of-date
 - [ ] T028 [P] Add Cloud Firestore (Datastore mode) emulator dependencies, Maven profiles/goals, and docker-compose entry so integration tests can run offline; document how to seed data before each suite.
@@ -219,7 +219,7 @@ Examples of foundational tasks (adjust based on your project):
 - Services before endpoints
 - Core implementation before integration
 - Story complete before moving to next priority
-- Honor contract-first, LLM safety, rich-email integrity, containerization/GCP, Swagger UI exposure, API key guardrails, and INVEST constraints for every change; document exceptions in the Complexity Tracking log
+- Honor code-first OpenAPI generation, LLM safety, rich-email integrity, containerization/GCP, Swagger UI exposure, API key guardrails, and INVEST constraints for every change; document exceptions in the Complexity Tracking log
 - Keep WIP low: no engineer should own more than two concurrent stories; finish INVEST slices before starting new ones and capture iteration demos in docs/specs
 
 ### Parallel Opportunities
