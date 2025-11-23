@@ -22,13 +22,11 @@ You **MUST** consider the user input before proceeding (if not empty).
      - Incomplete items: Lines matching `- [ ]`
    - Create a status table:
 
-     ```text
-     | Checklist | Total | Completed | Incomplete | Status |
-     |-----------|-------|-----------|------------|--------|
-     | ux.md     | 12    | 12        | 0          | ✓ PASS |
-     | test.md   | 8     | 5         | 3          | ✗ FAIL |
-     | security.md | 6   | 6         | 0          | ✓ PASS |
-     ```
+     | Checklist   | Total | Completed | Incomplete | Status                  |
+     |-------------|-------|-----------|------------|-------------------------|
+     | ux.md       | 12    | 12        | 0          | :white_check_mark: PASS |
+     | test.md     | 8     | 5         | 3          | :x: FAIL                |
+     | security.md | 6     | 6         | 0          | :white_check_mark: PASS |
 
    - Calculate overall status:
      - **PASS**: All checklists have 0 incomplete items
@@ -63,13 +61,13 @@ You **MUST** consider the user input before proceeding (if not empty).
      git rev-parse --git-dir 2>/dev/null
      ```
 
-   - Check if Dockerfile* exists or Docker in plan.md → create/verify .dockerignore
-   - Check if .eslintrc* exists → create/verify .eslintignore
-   - Check if eslint.config.* exists → ensure the config's `ignores` entries cover required patterns
-   - Check if .prettierrc* exists → create/verify .prettierignore
-   - Check if .npmrc or package.json exists → create/verify .npmignore (if publishing)
-   - Check if terraform files (*.tf) exist → create/verify .terraformignore
-   - Check if .helmignore needed (helm charts present) → create/verify .helmignore
+   - Check if Dockerfile* exists or Docker in plan.md -> create/verify .dockerignore
+   - Check if .eslintrc* exists -> create/verify .eslintignore
+   - Check if eslint.config.* exists -> ensure the config's `ignores` entries cover required patterns
+   - Check if .prettierrc* exists -> create/verify .prettierignore
+   - Check if .npmrc or package.json exists -> create/verify .npmignore (if publishing)
+   - Check if terraform files (*.tf) exist -> create/verify .terraformignore
+   - Check if .helmignore needed (helm charts present) -> create/verify .helmignore
 
    **If ignore file already exists**: Verify it contains essential patterns, append missing critical patterns only
    **If ignore file missing**: Create with full pattern set for detected technology
@@ -77,13 +75,13 @@ You **MUST** consider the user input before proceeding (if not empty).
    **Common Patterns by Technology** (from plan.md tech stack):
    - **Node.js/JavaScript/TypeScript**: `node_modules/`, `dist/`, `build/`, `*.log`, `.env*`
    - **Python**: `__pycache__/`, `*.pyc`, `.venv/`, `venv/`, `dist/`, `*.egg-info/`
-   - **Java**: `target/`, `*.class`, `*.jar`, `.gradle/`, `build/`
+   - **Java**: `target/`, `*.class`, `*.jar`, `.mvn/`, `pom.xml.versionsBackup`, `build/`
    - **C#/.NET**: `bin/`, `obj/`, `*.user`, `*.suo`, `packages/`
    - **Go**: `*.exe`, `*.test`, `vendor/`, `*.out`
    - **Ruby**: `.bundle/`, `log/`, `tmp/`, `*.gem`, `vendor/bundle/`
    - **PHP**: `vendor/`, `*.log`, `*.cache`, `*.env`
    - **Rust**: `target/`, `debug/`, `release/`, `*.rs.bk`, `*.rlib`, `*.prof*`, `.idea/`, `*.log`, `.env*`
-   - **Kotlin**: `build/`, `out/`, `.gradle/`, `.idea/`, `*.class`, `*.jar`, `*.iml`, `*.log`, `.env*`
+   - **Kotlin**: `build/`, `out/`, `.mvn/`, `.idea/`, `*.class`, `*.jar`, `*.iml`, `*.log`, `.env*`
    - **C++**: `build/`, `bin/`, `obj/`, `out/`, `*.o`, `*.so`, `*.a`, `*.exe`, `*.dll`, `.idea/`, `*.log`, `.env*`
    - **C**: `build/`, `bin/`, `obj/`, `out/`, `*.o`, `*.a`, `*.so`, `*.exe`, `Makefile`, `config.log`, `.idea/`, `*.log`, `.env*`
    - **Swift**: `.build/`, `DerivedData/`, `*.swiftpm/`, `Packages/`

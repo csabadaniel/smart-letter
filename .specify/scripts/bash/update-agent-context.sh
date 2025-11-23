@@ -92,7 +92,7 @@ log_info() {
 }
 
 log_success() {
-    echo "✓ $1"
+    echo "[OK] $1"
 }
 
 log_error() {
