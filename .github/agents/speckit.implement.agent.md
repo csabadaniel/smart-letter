@@ -22,13 +22,11 @@ You **MUST** consider the user input before proceeding (if not empty).
      - Incomplete items: Lines matching `- [ ]`
    - Create a status table:
 
-     ```text
-     | Checklist | Total | Completed | Incomplete | Status |
-     |-----------|-------|-----------|------------|--------|
-   | ux.md     | 12    | 12        | 0          | :heavy_check_mark: PASS |
-   | test.md   | 8     | 5         | 3          | :x: FAIL |
-   | security.md | 6   | 6         | 0          | :heavy_check_mark: PASS |
-     ```
+     | Checklist   | Total | Completed | Incomplete | Status                  |
+     |-------------|-------|-----------|------------|-------------------------|
+     | ux.md       | 12    | 12        | 0          | :white_check_mark: PASS |
+     | test.md     | 8     | 5         | 3          | :x: FAIL                |
+     | security.md | 6     | 6         | 0          | :white_check_mark: PASS |
 
    - Calculate overall status:
      - **PASS**: All checklists have 0 incomplete items
