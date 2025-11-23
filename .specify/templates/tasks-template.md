@@ -58,6 +58,9 @@ description: "Task list template for feature implementation"
 - [ ] T007 [P] Install and verify the baseline testing toolchain (JUnit 5, AssertJ, Mockito, Spring Cloud Contract, Testcontainers, Cucumber/JGiven) with Gradle tasks (`test`, `contractTest`, `bddTest`) and document how to run them before implementation starts
 - [ ] T008 [P] Initialize `/infra/terraform` (or `/infra/pulumi`) modules covering Cloud Run, Artifact Registry, Secret Manager, IAM, and monitoring resources; configure remote/state storage and module README.
 - [ ] T009 [P] Add CI automation that runs `terraform fmt`, `terraform validate`, and `terraform plan` (or Pulumi preview) on every PR touching `/infra/`, attaching the plan artifact to the review.
+- [ ] T010 [P] Author `.github/workflows/ci.yml` that runs lint + TDD/BDD/contract suites, coverage gates, Terraform plan, container build+scan, SBOM upload, and auto-deploy to the test Cloud Run service when all checks pass.
+- [ ] T011 [P] Author `.github/workflows/deploy-prod.yml` (or add release job) that triggers on merges to the protected branch, reruns the quality gates, requires green test workflow status, and then deploys to the production Cloud Run service.
+- [ ] T012 Configure workflow secrets (API keys, GCP service accounts) via GitHub Environments with required reviewers for production deploys and document rotation procedures.
 
 ---
 
@@ -69,24 +72,25 @@ description: "Task list template for feature implementation"
 
 Examples of foundational tasks (adjust based on your project):
 
-- [ ] T010 Create shared DTOs, validation annotations, and exception mappers for `POST /letters`
-- [ ] T011 [P] Implement shared `SmartLetterLlmClient` with WebClient, timeouts, retry/backoff, and prompt redaction utilities
-- [ ] T012 Configure email templating directories (`src/main/resources/templates/`) plus Thymeleaf + sanitizer configuration
-- [ ] T013 Configure Spring Mail provider credentials, provider-specific headers, and health probes
-- [ ] T014 Add Micrometer metrics, tracing filters, and log correlation for request → LLM → email path
-- [ ] T015 Define deterministic fallback email content and store snapshots under `src/test/resources/templates/__snapshots__/`
-- [ ] T016 Setup environment configuration management (Spring Config + secrets manager bindings)
-- [ ] T017 [P] Configure Paketo Buildpacks or Jib settings (including SBOM generation) and ensure the resulting image runs as non-root
-- [ ] T018 [P] Create Artifact Registry repository, `infra/cloudrun/service.yaml`, and `scripts/deploy-cloudrun.sh` with Always Free tier limits baked in
-- [ ] T019 [P] Implement API key authentication filter/interceptor plus constant-time comparison utility in `src/main/java/.../security`
-- [ ] T020 Wire API key storage via Cloud Secret Manager + Spring Config, add rotation cron/runbook, and emit audit logs for auth successes/failures
-- [ ] T021 [P] Secure `/swagger-ui` with IAP or Basic Auth, document QA credentials, and wire audit logging for usage
-- [ ] T022 Add automated check ensuring the deployed OpenAPI JSON matches `docs/contracts/openapi.yaml` and is linked from Swagger UI
-- [ ] T023 [P] Create shared BDD assets (`src/test/resources/features`, glue packages, JGiven stages), seed sample feature mapping to US1, and document naming conventions
-- [ ] T024 Wire Spring Cloud Contract + Testcontainers base classes into CI so `contractTest` and `bddTest` fail the build when scenarios are missing or out-of-date
-- [ ] T025 [P] Add Cloud Firestore (Datastore mode) emulator dependencies, Gradle tasks, and docker-compose entry so integration tests can run offline; document how to seed data before each suite.
-- [ ] T026 Implement `AppSettingRepository` + caching layer under `src/main/java/.../settings/`, including optimistic locking/version stamping and Micrometer metrics for reads/writes.
-- [ ] T027 [P] Create IaC + migration scripts (Terraform seeding, JSON fixtures, or Spring Boot runner) that provision default application settings while keeping quotas within Always Free limits (≤1 GB storage, ≤50k reads/day).
+- [ ] T013 Create shared DTOs, validation annotations, and exception mappers for `POST /letters`
+- [ ] T014 [P] Implement shared `SmartLetterLlmClient` with WebClient, timeouts, retry/backoff, and prompt redaction utilities
+- [ ] T015 Configure email templating directories (`src/main/resources/templates/`) plus Thymeleaf + sanitizer configuration
+- [ ] T016 Configure Spring Mail provider credentials, provider-specific headers, and health probes
+- [ ] T017 Add Micrometer metrics, tracing filters, and log correlation for request → LLM → email path
+- [ ] T018 Define deterministic fallback email content and store snapshots under `src/test/resources/templates/__snapshots__/`
+- [ ] T019 Setup environment configuration management (Spring Config + secrets manager bindings)
+- [ ] T020 [P] Configure Paketo Buildpacks or Jib settings (including SBOM generation) and ensure the resulting image runs as non-root
+- [ ] T021 [P] Create Artifact Registry repository, `infra/cloudrun/service.yaml`, and `scripts/deploy-cloudrun.sh` with Always Free tier limits baked in
+- [ ] T022 [P] Implement API key authentication filter/interceptor plus constant-time comparison utility in `src/main/java/.../security`
+- [ ] T023 Wire API key storage via Cloud Secret Manager + Spring Config, add rotation cron/runbook, and emit audit logs for auth successes/failures
+- [ ] T024 [P] Secure `/swagger-ui` with IAP or Basic Auth, document QA credentials, and wire audit logging for usage
+- [ ] T025 Add automated check ensuring the deployed OpenAPI JSON matches `docs/contracts/openapi.yaml` and is linked from Swagger UI
+- [ ] T026 [P] Create shared BDD assets (`src/test/resources/features`, glue packages, JGiven stages), seed sample feature mapping to US1, and document naming conventions
+- [ ] T027 Wire Spring Cloud Contract + Testcontainers base classes into CI so `contractTest` and `bddTest` fail the build when scenarios are missing or out-of-date
+- [ ] T028 [P] Add Cloud Firestore (Datastore mode) emulator dependencies, Gradle tasks, and docker-compose entry so integration tests can run offline; document how to seed data before each suite.
+- [ ] T029 Implement `AppSettingRepository` + caching layer under `src/main/java/.../settings/`, including optimistic locking/version stamping and Micrometer metrics for reads/writes.
+- [ ] T030 [P] Create IaC + migration scripts (Terraform seeding, JSON fixtures, or Spring Boot runner) that provision default application settings while keeping quotas within Always Free limits (≤1 GB storage, ≤50k reads/day).
+- [ ] T031 Wire GitHub Actions environments (`test`, `production`) to Cloud Run service accounts, configure required approvals for production, and document environment protection rules.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -102,18 +106,18 @@ Examples of foundational tasks (adjust based on your project):
 
 > **NOTE: Capture GIVEN/WHEN/THEN in feature files and make sure every test fails before implementation begins.**
 
-- [ ] T030 [P] [US1] Author/update Cucumber (or JGiven) acceptance scenarios plus glue code under `src/test/resources/features/us1/*.feature`
-- [ ] T031 [P] [US1] Contract test for `POST /letters` using MockMvc + OpenAPI validator in `src/test/java/.../contract/LetterContractTest.java`
-- [ ] T032 [P] [US1] Snapshot test for HTML + plaintext templates in `src/test/java/.../templates/LetterTemplateSnapshotTest.java`
-- [ ] T033 [US1] Integration test covering request → LLM stub → email fallback in `src/test/java/.../integration/LetterFlowIT.java`
+- [ ] T040 [P] [US1] Author/update Cucumber (or JGiven) acceptance scenarios plus glue code under `src/test/resources/features/us1/*.feature`
+- [ ] T041 [P] [US1] Contract test for `POST /letters` using MockMvc + OpenAPI validator in `src/test/java/.../contract/LetterContractTest.java`
+- [ ] T042 [P] [US1] Snapshot test for HTML + plaintext templates in `src/test/java/.../templates/LetterTemplateSnapshotTest.java`
+- [ ] T043 [US1] Integration test covering request → LLM stub → email fallback in `src/test/java/.../integration/LetterFlowIT.java`
 
 ### Implementation for User Story 1
 
-- [ ] T034 [P] [US1] Implement `LetterRequest`/`LetterResponse` DTOs with validation in `src/main/java/.../api/`
-- [ ] T035 [P] [US1] Build orchestrator service `LetterService` combining LLM output + fallback template
-- [ ] T036 [US1] Implement `LetterController` with OpenAPI annotations and contract tests
-- [ ] T037 [US1] Add Micrometer timers and structured logging for correlation IDs across controller/service/client layers
-- [ ] T038 [US1] Record fallback incidents to persistent audit store (if enabled)
+- [ ] T044 [P] [US1] Implement `LetterRequest`/`LetterResponse` DTOs with validation in `src/main/java/.../api/`
+- [ ] T045 [P] [US1] Build orchestrator service `LetterService` combining LLM output + fallback template
+- [ ] T046 [US1] Implement `LetterController` with OpenAPI annotations and contract tests
+- [ ] T047 [US1] Add Micrometer timers and structured logging for correlation IDs across controller/service/client layers
+- [ ] T048 [US1] Record fallback incidents to persistent audit store (if enabled)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -127,17 +131,17 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 2 (MANDATORY - fail-first) ⚠️
 
-- [ ] T040 [P] [US2] Author/update BDD scenarios for locale/tone branching and map them to glue in `src/test/java/.../bdd`
-- [ ] T041 [P] [US2] Contract test for new request fields/version headers in `src/test/java/.../contract/LetterContractV2Test.java`
-- [ ] T042 [P] [US2] Rendering regression test for new template variant (locale, tone) in `src/test/java/.../templates/...`
-- [ ] T043 [US2] Integration test simulating LLM retry/exponential backoff vs provider throttling
+- [ ] T050 [P] [US2] Author/update BDD scenarios for locale/tone branching and map them to glue in `src/test/java/.../bdd`
+- [ ] T051 [P] [US2] Contract test for new request fields/version headers in `src/test/java/.../contract/LetterContractV2Test.java`
+- [ ] T052 [P] [US2] Rendering regression test for new template variant (locale, tone) in `src/test/java/.../templates/...`
+- [ ] T053 [US2] Integration test simulating LLM retry/exponential backoff vs provider throttling
 
 ### Implementation for User Story 2
 
-- [ ] T044 [P] [US2] Extend prompt builder to support locale/tone switches in `src/main/java/.../llm/PromptBuilder.java`
-- [ ] T045 [US2] Update email renderer to select correct template pair and ensure accessibility annotations
-- [ ] T046 [US2] Wire API version negotiation or feature flags while keeping v1 contract intact
-- [ ] T047 [US2] Update metrics/alerts for the new variant-specific KPIs
+- [ ] T054 [P] [US2] Extend prompt builder to support locale/tone switches in `src/main/java/.../llm/PromptBuilder.java`
+- [ ] T055 [US2] Update email renderer to select correct template pair and ensure accessibility annotations
+- [ ] T056 [US2] Wire API version negotiation or feature flags while keeping v1 contract intact
+- [ ] T057 [US2] Update metrics/alerts for the new variant-specific KPIs
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -151,17 +155,17 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 3 (MANDATORY - fail-first) ⚠️
 
-- [ ] T050 [P] [US3] Define BDD scenarios covering metadata/attachment permutations and glue them to queue/escalation behaviors
-- [ ] T051 [P] [US3] Contract test for new metadata/attachments (if any) using WireMock for downstream dependencies
-- [ ] T052 [P] [US3] Load test scenario for throughput/latency budgets using Gatling or k6
-- [ ] T053 [US3] Integration test for fallback escalation path (e.g., queueing manual review)
+- [ ] T060 [P] [US3] Define BDD scenarios covering metadata/attachment permutations and glue them to queue/escalation behaviors
+- [ ] T061 [P] [US3] Contract test for new metadata/attachments (if any) using WireMock for downstream dependencies
+- [ ] T062 [P] [US3] Load test scenario for throughput/latency budgets using Gatling or k6
+- [ ] T063 [US3] Integration test for fallback escalation path (e.g., queueing manual review)
 
 ### Implementation for User Story 3
 
-- [ ] T054 [P] [US3] Introduce new domain model (e.g., Attachment, ChannelPreference) with validation + persistence if required
-- [ ] T055 [US3] Extend orchestrator to branch logic (LLM vs manual template) based on policy engine result
-- [ ] T056 [US3] Implement supporting scheduler/queue integration if escalations need async handling
-- [ ] T057 [US3] Update observability dashboards and alerts for new flow variants
+- [ ] T064 [P] [US3] Introduce new domain model (e.g., Attachment, ChannelPreference) with validation + persistence if required
+- [ ] T065 [US3] Extend orchestrator to branch logic (LLM vs manual template) based on policy engine result
+- [ ] T066 [US3] Implement supporting scheduler/queue integration if escalations need async handling
+- [ ] T067 [US3] Update observability dashboards and alerts for new flow variants
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -184,6 +188,7 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] TXXX Execute `scripts/deploy-cloudrun.sh` dry run, verify Cloud Run revision stays within Always Free tier limits, and capture rollout notes
 - [ ] TXXX Validate Swagger UI (auth, Try-It-Out policy, OpenAPI hash) in staging/production and attach manual test evidence
 - [ ] TXXX Audit API key rotation logs, revoke unused keys, and document evidence for the release
+- [ ] TXXX Capture links to the latest GitHub Actions push (test deploy) and release (production deploy) workflow runs, ensuring all required jobs succeeded and artifacts (tests, coverage, Terraform plan, SBOM) are archived.
 - [ ] TXXX Capture Firestore usage metrics (storage, daily reads/writes) and attach screenshots/logs proving the service remains within Always Free limits; document any migrations applied this release.
 
 ---
