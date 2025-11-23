@@ -20,7 +20,7 @@
   - Demonstrated to users independently
 -->
 
-> Constitution alignment: at least one P1 story must exercise the full request → LLM → email pipeline, document the fallback narrative, and state how accessibility + observability requirements are verified. Every story you capture MUST meet INVEST (Independent, Negotiable, Valuable, Estimable, Small, Testable) so it can ship on its own, and each acceptance criterion must translate directly into executable Gherkin scenarios (BDD) plus TDD unit/contract tests.
+> Constitution alignment: at least one P1 story must exercise the full request -> LLM -> email pipeline, document the fallback narrative, and state how accessibility + observability requirements are verified. Every story you capture MUST meet INVEST (Independent, Negotiable, Valuable, Estimable, Small, Testable) so it can ship on its own, and each acceptance criterion must translate directly into executable Gherkin scenarios (BDD) plus TDD unit/contract tests.
 
 ### User Story 1 - [Brief Title] (Priority: P1)
 
@@ -103,7 +103,7 @@
 - **FR-008**: Deployments MUST target Cloud Run with Always Free settings (<= 1 vCPU, <= 256 MiB memory, <= 20 concurrency) and document the exact `gcloud run deploy` or Terraform invocation.
 - **FR-009**: The service MUST authenticate every request via `X-SmartLetter-Api-Key`, enforcing 32+ byte entropy, constant-time comparisons, per-key rate limits, and rotation automation backed by Cloud Secret Manager.
 - **FR-010**: Swagger UI MUST be deployed in every environment, source the same `docs/contracts/openapi.yaml`, prompt users for an API key (never storing it), and apply the same backend authentication pipeline when Try-It-Out is enabled.
-- **FR-011**: Implementation MUST follow TDD—write failing JUnit/AssertJ (and when applicable Spring Cloud Contract/Testcontainers) tests before production code, keep coverage >= 90% on changed files, and document the red → green → refactor cycle per story.
+- **FR-011**: Implementation MUST follow TDD—write failing JUnit/AssertJ (and when applicable Spring Cloud Contract/Testcontainers) tests before production code, keep coverage >= 90% on changed files, and document the red -> green -> refactor cycle per story.
 - **FR-012**: Each story MUST add at least one executable BDD scenario (Gherkin via Cucumber JVM) tagged with the story ID and runnable in CI; scenarios must mirror the acceptance criteria verbatim.
 - **FR-013**: All infrastructure resources (Cloud Run, Artifact Registry, Secret Manager, IAM, monitoring) MUST be managed via code stored under `/infra/` (Terraform, Pulumi, or scripted `gcloud`). Manual console edits require retroactive IaC updates in the same iteration.
 - **FR-014**: Permanent application settings MUST persist in Cloud Firestore (Datastore mode) collections defined in IaC, stay within Always Free quotas (<= 1 GB storage, <= 50k document reads/day, <= 20k writes/day), and be accessed through typed repositories with optimistic concurrency and audit logging.
@@ -154,7 +154,7 @@
 
 ### Testing Discipline (TDD + BDD) *(constitution-required)*
 
-- Outline the TDD plan: which classes/tests will fail first, how red → green → refactor will be demonstrated, and coverage targets per layer.
+- Outline the TDD plan: which classes/tests will fail first, how red -> green -> refactor will be demonstrated, and coverage targets per layer.
 - Document BDD scenarios in Gherkin (Given/When/Then) tied to INVEST stories; specify tags, data fixtures, and how scenarios are executed with Cucumber JVM (e.g., `mvn verify -Pcucumber`).
 - Note any Spring Cloud Contract stubs or Testcontainers environments needed to satisfy the scenario without real upstream dependencies.
 - Describe how CI enforces these suites (parallelization, expected runtime budgets, required artifacts/logs).

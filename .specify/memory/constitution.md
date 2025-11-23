@@ -1,6 +1,6 @@
 <!--
 Sync Impact Report
-Version: 1.9.0 → 1.10.0
+Version: 1.9.0 -> 1.10.0
 Modified Principles:
 - Service Guardrails: Standard build tooling now mandates Maven (via Maven Wrapper) instead of Gradle to keep developer workflows consistent
 Added Sections:
@@ -38,7 +38,7 @@ Follow-ups:
 *Rationale*: The email is the only user-visible surface, so high-fidelity rendering and safety gates are mandatory.
 
 ### IV. Test-Driven & Behavior-Driven Delivery
-- Every change starts with failing unit and contract tests written in JUnit 5 + AssertJ (for services/controllers) and Spring Cloud Contract or WireMock stubs (for integrations). Production code cannot be authored before the corresponding test exists and fails (Red → Green → Refactor cycle).
+- Every change starts with failing unit and contract tests written in JUnit 5 + AssertJ (for services/controllers) and Spring Cloud Contract or WireMock stubs (for integrations). Production code cannot be authored before the corresponding test exists and fails (Red -> Green -> Refactor cycle).
 - Acceptance criteria are captured as executable Gherkin scenarios using Cucumber JVM that exercise end-to-end flows—including prompt building, LLM call, email rendering, and fallback logic. Each user story must contribute at least one new or updated scenario.
 - Regression safety requires Testcontainers-backed integration suites for external dependencies (LLM mock, SMTP provider) plus deterministic snapshots for HTML output. Test suites run in CI on every PR and must complete in <10 minutes.
 *Rationale*: TDD + BDD keep the service verifiable, encourage incremental delivery, and document system behavior in a user-centric language.

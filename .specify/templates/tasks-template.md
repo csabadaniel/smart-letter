@@ -78,7 +78,7 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T014 [P] Implement shared `SmartLetterLlmClient` with WebClient, timeouts, retry/backoff, and prompt redaction utilities
 - [ ] T015 Configure email templating directories (`src/main/resources/templates/`) plus Thymeleaf + sanitizer configuration
 - [ ] T016 Configure Spring Mail provider credentials, provider-specific headers, and health probes
-- [ ] T017 Add Micrometer metrics, tracing filters, and log correlation for request → LLM → email path
+- [ ] T017 Add Micrometer metrics, tracing filters, and log correlation for request -> LLM -> email path
 - [ ] T018 Define deterministic fallback email content and store snapshots under `src/test/resources/templates/__snapshots__/`
 - [ ] T019 Setup environment configuration management (Spring Config + secrets manager bindings)
 - [ ] T020 [P] Configure Paketo Buildpacks or Jib settings (including SBOM generation) and ensure the resulting image runs as non-root
@@ -111,7 +111,7 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T040 [P] [US1] Author/update Cucumber JVM acceptance scenarios plus glue code under `src/test/resources/features/us1/*.feature`
 - [ ] T041 [P] [US1] Contract test for `POST /letters` using MockMvc + OpenAPI validator in `src/test/java/.../contract/LetterContractTest.java`
 - [ ] T042 [P] [US1] Snapshot test for HTML + plaintext templates in `src/test/java/.../templates/LetterTemplateSnapshotTest.java`
-- [ ] T043 [US1] Integration test covering request → LLM stub → email fallback in `src/test/java/.../integration/LetterFlowIT.java`
+- [ ] T043 [US1] Integration test covering request -> LLM stub -> email fallback in `src/test/java/.../integration/LetterFlowIT.java`
 
 ### Implementation for User Story 1
 
@@ -203,7 +203,7 @@ Examples of foundational tasks (adjust based on your project):
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
   - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+  - Or sequentially in priority order (P1 -> P2 -> P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -259,10 +259,10 @@ Task: "Create [Entity2] model in src/models/[entity2].py"
 
 ### Incremental Delivery
 
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
+1. Complete Setup + Foundational -> Foundation ready
+2. Add User Story 1 -> Test independently -> Deploy/Demo (MVP!)
+3. Add User Story 2 -> Test independently -> Deploy/Demo
+4. Add User Story 3 -> Test independently -> Deploy/Demo
 5. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
