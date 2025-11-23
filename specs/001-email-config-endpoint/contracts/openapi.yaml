@@ -1,0 +1,152 @@
+openapi: 3.1.0
+info:
+  title: Smart Letter Configuration API
+  version: 0.1.0
+  description: Preview contract for the recipient email + LLM prompt configuration endpoints.
+servers:
+  - url: https://smart-letter.example.com
+paths:
+  /v1/config/delivery:
+    get:
+      summary: Fetch the current delivery configuration
+      description: Returns the single approved recipient email and deterministic LLM prompt plus audit metadata.
+      operationId: getDeliveryConfiguration
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Configuration found
+          headers:
+            ETag:
+              description: Hash of the stored prompt + version for cache validation.
+              schema:
+                type: string
+            Last-Modified:
+              description: ISO-8601 timestamp of the last successful update.
+              schema:
+                type: string
+                format: date-time
+            Cache-Control:
+              description: Cache hints for internal clients (private, max-age=60).
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryConfigurationResponse'
+        '404':
+          description: No configuration exists yet
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Missing or invalid API key
+        '429':
+          description: Rate limit exceeded for this API key
+    put:
+      summary: Upsert the delivery configuration
+      description: Stores the single approved recipient email and deterministic LLM prompt atomically.
+      operationId: upsertDeliveryConfiguration
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeliveryConfigurationRequest'
+      responses:
+        '200':
+          description: Configuration updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryConfigurationResponse'
+        '201':
+          description: Configuration created for the first time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryConfigurationResponse'
+        '409':
+          description: Optimistic locking conflict (stale version)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation failure (invalid email or prompt)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Firestore unavailable or quota exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-SmartLetter-Api-Key
+  schemas:
+    DeliveryConfigurationRequest:
+      type: object
+      required:
+        - recipientEmail
+        - llmPrompt
+      properties:
+        recipientEmail:
+          type: string
+          format: email
+          maxLength: 254
+          description: Single approved recipient email address.
+        llmPrompt:
+          type: string
+          minLength: 1
+          maxLength: 4000
+          description: Deterministic prompt template stored for later request -> LLM -> email flows.
+    DeliveryConfigurationResponse:
+      type: object
+      required:
+        - recipientEmail
+        - llmPrompt
+        - version
+        - updatedBy
+        - updatedAt
+      properties:
+        recipientEmail:
+          type: string
+        llmPrompt:
+          type: string
+        version:
+          type: integer
+          minimum: 1
+        updatedBy:
+          type: string
+          description: API key owner slug + environment (e.g., ops:staging).
+        updatedAt:
+          type: string
+          format: date-time
+        promptSha256:
+          type: string
+          description: Hex-encoded hash for audit/logging; clients never log prompt text.
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: Machine-readable error code (e.g., CONFIG_NOT_FOUND, VALIDATION_ERROR).
+        message:
+          type: string
+        details:
+          type: object
+          additionalProperties:
+            type: string
