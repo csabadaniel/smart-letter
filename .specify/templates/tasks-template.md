@@ -56,6 +56,8 @@ description: "Task list template for feature implementation"
 - [ ] T005 [P] Add Springdoc OpenAPI + Swagger UI dependencies, seed `/swagger-ui` route, and disable Try-It-Out by default
 - [ ] T006 Define API key header (`X-SmartLetter-Api-Key`), add sample property placeholders, and document rotation procedures in `docs/security/api-keys.md`
 - [ ] T007 [P] Install and verify the baseline testing toolchain (JUnit 5, AssertJ, Mockito, Spring Cloud Contract, Testcontainers, Cucumber/JGiven) with Gradle tasks (`test`, `contractTest`, `bddTest`) and document how to run them before implementation starts
+- [ ] T008 [P] Initialize `/infra/terraform` (or `/infra/pulumi`) modules covering Cloud Run, Artifact Registry, Secret Manager, IAM, and monitoring resources; configure remote/state storage and module README.
+- [ ] T009 [P] Add CI automation that runs `terraform fmt`, `terraform validate`, and `terraform plan` (or Pulumi preview) on every PR touching `/infra/`, attaching the plan artifact to the review.
 
 ---
 

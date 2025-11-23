@@ -20,7 +20,7 @@
 **Performance Goals**: LLM round-trip < 3s p95, email dispatch < 5s p95 unless tighter SLAs are required  
 **Constraints**: Contract-first OpenAPI, HTML + plaintext email pairing, deterministic fallback path, Micrometer metrics for llm/email events, authenticated Swagger UI exposure, API key enforcement via `X-SmartLetter-Api-Key`, and INVEST-compliant story slicing  
 **Scale/Scope**: Baseline 10k rich-text emails per day; override with feature-specific demand if known  
-**Containerization & Deployment**: Build OCI images via Paketo Buildpacks or Jib, publish to Artifact Registry, and target Cloud Run (Always Free tier: ≤1 vCPU, ≤256 MiB, ≤20 concurrency) with `gcloud run deploy` automation recorded here
+**Containerization & Deployment**: Build OCI images via Paketo Buildpacks or Jib, publish to Artifact Registry, and target Cloud Run (Always Free tier: ≤1 vCPU, ≤256 MiB, ≤20 concurrency) with `gcloud run deploy` automation recorded here. Infrastructure provisioning MUST be expressed as code (Terraform, Pulumi, or scripted `gcloud`) stored under `/infra/` in this repository and referenced by branch/tag.
 
 ## Constitution Check
 
@@ -35,6 +35,7 @@
 - **API key policy**: Header name, rotation cadence, storage (Secret Manager), and rate limiting/audit plan are specified, plus how Swagger UI accepts user-provided keys (Service Guardrails).
 - **INVEST cadence**: Feature stories are decomposed into INVEST slices with clearly stated acceptance criteria, estimated effort, and iteration order; WIP limits and incremental delivery plan are captured (Workflow & Quality Gates).
 - **TDD/BDD plan**: Identify which stories will add JUnit/AssertJ unit tests, Spring Cloud Contract stubs, Testcontainers flows, and Gherkin scenarios (Cucumber). Note how “red → green → refactor” evidence will be captured in commits/PRs (Workflow & Quality Gates).
+- **IaC readiness**: Document the Terraform/Pulumi modules (or scripted `gcloud` tooling) under `/infra/`, what resources they manage (Cloud Run, Artifact Registry, Secret Manager, IAM, monitoring), how state is stored, and where the `plan` output will be attached for review.
 
 ### Project Structure
 
@@ -77,9 +78,11 @@ src/test/resources/
 └── templates/__snapshots__/   # Email snapshot baselines
 
 infra/
+├── terraform/ or pulumi/      # Infrastructure as code modules for Cloud Run, Artifact Registry, secrets, IAM, monitoring
 ├── cloudrun/service.yaml      # Cloud Run defaults (region, CPU/memory, concurrency)
-├── scripts/deploy-cloudrun.sh # `gcloud run deploy` helper with Always Free flags
-└── Dockerfile (optional)      # Only if deviating from Buildpacks/Jib defaults
+├── scripts/deploy-cloudrun.sh # `gcloud run deploy` helper (mirrors IaC settings)
+├── Dockerfile (optional)      # Only if deviating from Buildpacks/Jib defaults
+└── README.md                  # Document state management, remote state, promotion flow
 ```
 
 **Structure Decision**: This layout is the default; document any additions (e.g., extra modules) and how they respect the constitution guardrails.

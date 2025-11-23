@@ -103,11 +103,12 @@
 - **FR-010**: Swagger UI MUST be deployed in every environment, source the same `docs/contracts/openapi.yaml`, prompt users for an API key (never storing it), and apply the same backend authentication pipeline when Try-It-Out is enabled.
 - **FR-011**: Implementation MUST follow TDD—write failing JUnit/AssertJ (and when applicable Spring Cloud Contract/Testcontainers) tests before production code, keep coverage ≥90% on changed files, and document the red → green → refactor cycle per story.
 - **FR-012**: Each story MUST add at least one executable BDD scenario (Gherkin via Cucumber/JGiven) tagged with the story ID and runnable in CI; scenarios must mirror the acceptance criteria verbatim.
+- **FR-013**: All infrastructure resources (Cloud Run, Artifact Registry, Secret Manager, IAM, monitoring) MUST be managed via code stored under `/infra/` (Terraform, Pulumi, or scripted `gcloud`). Manual console edits require retroactive IaC updates in the same iteration.
 
 *Example of marking unclear requirements:*
 
-- **FR-013**: System MUST deliver email through [NEEDS CLARIFICATION: provider not specified - SES, Postmark, SMTP relay?]
-- **FR-014**: LLM prompt instructions MUST support [NEEDS CLARIFICATION: languages/tones not defined]
+- **FR-014**: System MUST deliver email through [NEEDS CLARIFICATION: provider not specified - SES, Postmark, SMTP relay?]
+- **FR-015**: LLM prompt instructions MUST support [NEEDS CLARIFICATION: languages/tones not defined]
 
 ### LLM & Email Safeguards *(constitution-required)*
 
@@ -122,6 +123,7 @@
 - Document Artifact Registry repositories, SBOM storage, and vulnerability scanning expectations.
 - Specify Cloud Run service configuration (region, vCPU, memory, concurrency, min/max instances) and how it remains inside the Always Free tier.
 - Capture the exact `gcloud run deploy` or infrastructure-as-code commands, including environment variables and Secret Manager references.
+- Reference the `/infra/` modules or scripts (Terraform/Pulumi) that provision these resources, note how state is stored (e.g., Terraform Cloud, GCS bucket), and include links to `plan`/`apply` artifacts required for review.
 - Define rollback/blue-green strategy and how cold-start latency will be measured and enforced.
 
 ### Access Control & API Keys *(constitution-required)*
@@ -167,3 +169,4 @@
 - **SC-008**: 100% of API keys rotate within the mandated window (≤90 days) with audit logs demonstrating issuance, rotation, and revocation events.
 - **SC-009**: Every delivered iteration ships at least one INVEST-compliant story with all acceptance tests automated or documented, and no in-flight story remains open for more than two iterations.
 - **SC-010**: 100% of new code is covered by tests authored via TDD (>=90% coverage on changed files) and each INVEST story has at least one passing Cucumber scenario recorded in CI artifacts for the release.
+- **SC-011**: 100% of infrastructure changes execute through repository IaC modules with `plan` artifacts attached to PRs and zero manual console drift at release sign-off.
