@@ -20,7 +20,7 @@
   - Demonstrated to users independently
 -->
 
-> Constitution alignment: at least one P1 story must exercise the full request -> LLM -> email pipeline, document the fallback narrative, and state how accessibility + observability requirements are verified. Every story you capture MUST meet INVEST (Independent, Negotiable, Valuable, Estimable, Small, Testable) so it can ship on its own, and each acceptance criterion must translate directly into executable Gherkin scenarios (BDD) plus TDD unit/contract tests.
+> Constitution alignment: at least one P1 story must exercise the full request -> LLM -> email pipeline, document the fallback narrative, and state how accessibility + observability requirements are verified. If a feature legitimately omits the email pipeline (e.g., pure API/observability work), record that exception plus the rationale in the Constitution Check so reviewers confirm the alternative scope. Every story you capture MUST meet INVEST (Independent, Negotiable, Valuable, Estimable, Small, Testable) so it can ship on its own, and each acceptance criterion must translate directly into executable Gherkin scenarios (BDD) plus TDD unit/contract tests.
 
 ### User Story 1 - [Brief Title] (Priority: P1)
 
