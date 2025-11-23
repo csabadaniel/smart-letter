@@ -74,15 +74,16 @@
   Fill them out with the right edge cases.
 -->
 
-- What happens when the LLM endpoint times out, redacts the response, or returns content that violates safety policies?
-- How does the system handle email provider failures, template rendering errors, or missing personalization fields while still honoring fallback delivery?
-- What is the behavior when duplicate requests (same correlation ID) arrive or when validation fails for inputs coming from upstream services?
-- How does the service respond when Cloud Run cold starts exceed latency budgets or Always Free quotas (requests, CPU, memory) are exhausted mid-flight?
-- What happens if container build/push automation fails or a `gcloud run deploy` rollback is required?
-- How is Swagger UI protected in production, and what happens when Try-It-Out is disabled or when the OpenAPI doc is out of sync with the deployed version?
-- How are API keys provisioned, rotated, revoked, and prevented from leaking (e.g., logging, Swagger UI inputs, browser storage)?
-- What is the recovery path if GitHub Actions pipelines fail mid-deploy, gates time out, or a commit triggers multiple overlapping test deployments?
-- How does the Firestore-backed settings store behave when quotas (reads/writes/storage) approach the Always Free limits or when concurrent updates conflict?
+- For each edge case, either describe the behavior here or reference the exact FR/constitution subsection where it is specified so the scenario cannot be skipped during review.
+- LLM availability, redaction, and safety violations → reference FR-003/FR-004 plus the **LLM & Email Safeguards** section when those details already exist.
+- Email delivery failures, template rendering issues, and fallback flows → reference FR-004/FR-005 and the deterministic fallback rules in **LLM & Email Safeguards**.
+- Duplicate requests, invalid payloads, or upstream validation failures → reference FR-001/FR-002 and note any idempotency tokens or replay protection here if not covered.
+- Cloud Run latency budgets, Always Free quotas, and cold starts → reference FR-008 and **Containerization & GCP Deployment**; include residual risks here only if they exceed documented budgets.
+- Container build/push automation failures and deployment rollbacks → reference FR-007/FR-015 and document manual recovery steps that are out-of-band.
+- Swagger UI protection and OpenAPI drift → reference FR-010 and summarize any additional hardening (e.g., IP allowlists) that reviewers must confirm.
+- API key lifecycle and leak prevention → reference FR-009 and describe feature-specific mitigations (temporary keys, env overrides) when present.
+- GitHub Actions pipeline failures, overlapping deploys, or gate timeouts → reference FR-015 and document contingency plans if they differ per feature.
+- Firestore quota pressure, contention, or migration conflicts → reference FR-014 and the **Persistent Settings Store** section; list any new contention detection tests needed.
 
 ## Requirements *(mandatory)*
 
