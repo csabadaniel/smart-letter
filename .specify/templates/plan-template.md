@@ -11,6 +11,8 @@
 
 ## Technical Context
 
+> Defaults apply to every feature unless a deviation is pre-approved via the **Complexity Tracking** section (document the rationale, risks, and rollback plan when requesting an exception).
+
 **Language/Version**: Java 21 (Spring Boot 3.3.x)  
 **Primary Dependencies**: Spring Web, Spring WebClient, Spring Validation, Thymeleaf, Spring Mail, Micrometer (note deviations explicitly)  
 **Build Tool**: Maven 3.9+ executed via the repository’s Maven Wrapper (`./mvnw`) for all builds, tests, and packaging steps  
