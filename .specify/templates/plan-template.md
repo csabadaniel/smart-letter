@@ -25,7 +25,7 @@
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design. EVERY bullet below must be explicitly addressed in this plan (with links or rationale) or the gate fails and work cannot advance.*
 
 - **Contract readiness**: OpenAPI delta, DTO validation rules, and backward compatibility strategy are documented and approved (Principle I).
 - **LLM safety**: Prompt contract, redaction controls, timeout budget, and fallback narrative are captured (Principle II).
