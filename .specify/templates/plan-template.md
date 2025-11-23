@@ -52,6 +52,7 @@ specs/[###-feature]/
 ├── data-model.md        # Phase 1 (/speckit.plan)
 ├── quickstart.md        # Phase 1 (/speckit.plan)
 ├── contracts/openapi.yaml   # Contract-first source of truth
+├── deployment.md        # Infra-as-code changelog; links to updated files under /infra/
 └── tasks.md             # Phase 2 (/speckit.tasks)
 ```
 
