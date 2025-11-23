@@ -20,7 +20,7 @@
 **Performance Goals**: LLM round-trip < 3s p95, email dispatch < 5s p95 unless tighter SLAs are required  
 **Constraints**: Contract-first OpenAPI, HTML + plaintext email pairing, deterministic fallback path, Micrometer metrics for llm/email events, authenticated Swagger UI exposure, API key enforcement via `X-SmartLetter-Api-Key`, INVEST-compliant story slicing, Firestore-backed persistent settings managed via IaC, and GitHub Actions-based continuous delivery to test (per commit) and production (per merge) environments gated by automated quality checks  
 **Scale/Scope**: Baseline 10k rich-text emails per day; override with feature-specific demand if known  
-**Containerization & Deployment**: Build OCI images via Paketo Buildpacks or Jib, publish to Artifact Registry, and target Cloud Run (Always Free tier: ≤1 vCPU, ≤256 MiB, ≤20 concurrency) with `gcloud run deploy` automation recorded here. Infrastructure provisioning MUST be expressed as code (Terraform, Pulumi, or scripted `gcloud`) stored under `/infra/` in this repository and referenced by branch/tag.
+**Containerization & Deployment**: Build OCI images via Paketo Buildpacks or Jib, publish to Artifact Registry, and target Cloud Run (Always Free tier: <= 1 vCPU, <= 256 MiB, <= 20 concurrency) with `gcloud run deploy` automation recorded here. Infrastructure provisioning MUST be expressed as code (Terraform, Pulumi, or scripted `gcloud`) stored under `/infra/` in this repository and referenced by branch/tag.
 
 ## Constitution Check
 
@@ -38,6 +38,7 @@
 - **IaC readiness**: Document the Terraform/Pulumi modules (or scripted `gcloud` tooling) under `/infra/`, what resources they manage (Cloud Run, Artifact Registry, Secret Manager, IAM, monitoring), how state is stored, and where the `plan` output will be attached for review.
 - **Persistent settings**: Describe new or updated Firestore entities/documents (kinds, collection paths, indexes), default values, migration approach (seed scripts or IaC), and how Always Free quotas will be respected.
 - **CI/CD automation**: Reference the GitHub Actions workflows (e.g., `.github/workflows/ci.yml`, `deploy-prod.yml`), triggers (push, merge), secrets, and promotion logic. Explain how quality gates (tests, coverage, Terraform plan, SBOM, container scan) feed deployment jobs and how failures block the test/prod deploy steps.
+- **Documentation encoding**: Confirm every documentation artifact touched by this feature (plan/spec/tasks/checklists/runbooks) remains ASCII-only and that expressive icons use GitHub Markdown emoji codes (e.g., `:warning:`). Reference the lint or scan that enforces this rule and note how reviewers will verify it before merge.
 
 ### Project Structure
 

@@ -100,19 +100,20 @@
 - **FR-005**: Emails MUST be sent with both HTML and plaintext bodies plus accessibility-compliant structure; tests must snapshot both.
 - **FR-006**: The system MUST emit Micrometer metrics/logs for correlation IDs, LLM latency, email-send outcomes, and fallback activations.
 - **FR-007**: CI/CD MUST build an OCI image using Paketo Buildpacks or Jib, generate an SBOM, and push the artifact to Artifact Registry with vulnerability scanning enforced.
-- **FR-008**: Deployments MUST target Cloud Run with Always Free settings (≤1 vCPU, ≤256 MiB memory, ≤20 concurrency) and document the exact `gcloud run deploy` or Terraform invocation.
+- **FR-008**: Deployments MUST target Cloud Run with Always Free settings (<= 1 vCPU, <= 256 MiB memory, <= 20 concurrency) and document the exact `gcloud run deploy` or Terraform invocation.
 - **FR-009**: The service MUST authenticate every request via `X-SmartLetter-Api-Key`, enforcing 32+ byte entropy, constant-time comparisons, per-key rate limits, and rotation automation backed by Cloud Secret Manager.
 - **FR-010**: Swagger UI MUST be deployed in every environment, source the same `docs/contracts/openapi.yaml`, prompt users for an API key (never storing it), and apply the same backend authentication pipeline when Try-It-Out is enabled.
-- **FR-011**: Implementation MUST follow TDD—write failing JUnit/AssertJ (and when applicable Spring Cloud Contract/Testcontainers) tests before production code, keep coverage ≥90% on changed files, and document the red → green → refactor cycle per story.
+- **FR-011**: Implementation MUST follow TDD—write failing JUnit/AssertJ (and when applicable Spring Cloud Contract/Testcontainers) tests before production code, keep coverage >= 90% on changed files, and document the red → green → refactor cycle per story.
 - **FR-012**: Each story MUST add at least one executable BDD scenario (Gherkin via Cucumber JVM) tagged with the story ID and runnable in CI; scenarios must mirror the acceptance criteria verbatim.
 - **FR-013**: All infrastructure resources (Cloud Run, Artifact Registry, Secret Manager, IAM, monitoring) MUST be managed via code stored under `/infra/` (Terraform, Pulumi, or scripted `gcloud`). Manual console edits require retroactive IaC updates in the same iteration.
-- **FR-014**: Permanent application settings MUST persist in Cloud Firestore (Datastore mode) collections defined in IaC, stay within Always Free quotas (≤1 GB storage, ≤50k document reads/day, ≤20k writes/day), and be accessed through typed repositories with optimistic concurrency and audit logging.
+- **FR-014**: Permanent application settings MUST persist in Cloud Firestore (Datastore mode) collections defined in IaC, stay within Always Free quotas (<= 1 GB storage, <= 50k document reads/day, <= 20k writes/day), and be accessed through typed repositories with optimistic concurrency and audit logging.
 - **FR-015**: GitHub Actions workflows must run on every commit (test deploy) and on merges to the release branch (production deploy), executing the full quality gate (lint, unit/integration/contract/BDD suites, coverage, Terraform plan, container build + scan) before invoking deployment jobs. Workflows must publish artifacts and tag Cloud Run revisions with the source commit SHA.
+- **FR-016**: All documentation artifacts generated or updated for this feature (plan, spec, tasks, checklists, runbooks) MUST remain ASCII-only. Use GitHub Markdown emoji codes (e.g., `:warning:`) for expressive icons, and document the lint/scan that proves compliance before merge.
 
 *Example of marking unclear requirements:*
 
-- **FR-016**: System MUST deliver email through [NEEDS CLARIFICATION: provider not specified - SES, Postmark, SMTP relay?]
-- **FR-017**: LLM prompt instructions MUST support [NEEDS CLARIFICATION: languages/tones not defined]
+- **FR-017**: System MUST deliver email through [NEEDS CLARIFICATION: provider not specified - SES, Postmark, SMTP relay?]
+- **FR-018**: LLM prompt instructions MUST support [NEEDS CLARIFICATION: languages/tones not defined]
 
 ### LLM & Email Safeguards *(constitution-required)*
 
@@ -184,11 +185,11 @@
 - **SC-003**: Accessibility/linting suite passes 100% of email snapshots before release.
 - **SC-004**: Observability dashboards capture correlation IDs for 100% of letters and allow tracing from request to SMTP provider ID.
 - **SC-005**: Container image build + scan completes under 5 minutes and yields zero critical vulnerabilities before deployment.
-- **SC-006**: Cloud Run revisions stay within Always Free quotas (≤2M requests/month, ≤360k vCPU-seconds) while keeping cold-start latency < 2 seconds and steady-state latency < 1 second p95.
+- **SC-006**: Cloud Run revisions stay within Always Free quotas (<= 2M requests/month, <= 360k vCPU-seconds) while keeping cold-start latency < 2 seconds and steady-state latency < 1 second p95.
 - **SC-007**: Swagger UI is reachable in staging and production with current OpenAPI docs, enforced auth, and recorded manual test evidence per release.
-- **SC-008**: 100% of API keys rotate within the mandated window (≤90 days) with audit logs demonstrating issuance, rotation, and revocation events.
+- **SC-008**: 100% of API keys rotate within the mandated window (<= 90 days) with audit logs demonstrating issuance, rotation, and revocation events.
 - **SC-009**: Every delivered iteration ships at least one INVEST-compliant story with all acceptance tests automated or documented, and no in-flight story remains open for more than two iterations.
 - **SC-010**: 100% of new code is covered by tests authored via TDD (>=90% coverage on changed files) and each INVEST story has at least one passing Cucumber JVM scenario recorded in CI artifacts for the release.
 - **SC-011**: 100% of infrastructure changes execute through repository IaC modules with `plan` artifacts attached to PRs and zero manual console drift at release sign-off.
-- **SC-012**: Firestore usage for permanent settings stays within Always Free quotas (≤1 GB storage, ≤50k document reads/day), with automated alerts when thresholds exceed 80%.
+- **SC-012**: Firestore usage for permanent settings stays within Always Free quotas (<= 1 GB storage, <= 50k document reads/day), with automated alerts when thresholds exceed 80%.
 - **SC-013**: 100% of commits complete the GitHub Actions push workflow (quality gates + test deploy) successfully, and 100% of merges to the release branch complete the production deploy workflow with links captured in release notes.

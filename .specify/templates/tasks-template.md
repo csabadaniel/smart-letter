@@ -19,6 +19,8 @@ description: "Task list template for feature implementation"
 - Include exact file paths in descriptions
 - Map each story to the BDD scenario IDs defined in `spec.md` so traceability is auditable
 
+**Encoding Rule**: Keep this document ASCII-only. Represent any visual cues with GitHub Markdown emoji codes (e.g., `:warning:`, `:white_check_mark:`) instead of raw Unicode symbols.
+
 ## Path Conventions
 
 - **Single project**: `src/`, `tests/` at repository root
@@ -68,7 +70,7 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+**:warning: CRITICAL**: No user story work can begin until this phase is complete
 
 Examples of foundational tasks (adjust based on your project):
 
@@ -89,20 +91,20 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T027 Wire Spring Cloud Contract + Testcontainers base classes into CI so `contractTest` and `bddTest` fail the build when scenarios are missing or out-of-date
 - [ ] T028 [P] Add Cloud Firestore (Datastore mode) emulator dependencies, Gradle tasks, and docker-compose entry so integration tests can run offline; document how to seed data before each suite.
 - [ ] T029 Implement `AppSettingRepository` + caching layer under `src/main/java/.../settings/`, including optimistic locking/version stamping and Micrometer metrics for reads/writes.
-- [ ] T030 [P] Create IaC + migration scripts (Terraform seeding, JSON fixtures, or Spring Boot runner) that provision default application settings while keeping quotas within Always Free limits (≤1 GB storage, ≤50k reads/day).
+- [ ] T030 [P] Create IaC + migration scripts (Terraform seeding, JSON fixtures, or Spring Boot runner) that provision default application settings while keeping quotas within Always Free limits (<= 1 GB storage, <= 50k reads/day).
 - [ ] T031 Wire GitHub Actions environments (`test`, `production`) to Cloud Run service accounts, configure required approvals for production, and document environment protection rules.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
 ---
 
-## Phase 3: User Story 1 - [Title] (Priority: P1) 🎯 MVP
+## Phase 3: User Story 1 - [Title] (Priority: P1) :dart: MVP
 
 **Goal**: [Brief description of what this story delivers]
 
 **Independent Test**: [How to verify this story works on its own]
 
-### Tests for User Story 1 (MANDATORY - fail-first) ⚠️
+### Tests for User Story 1 (MANDATORY - fail-first) :warning:
 
 > **NOTE: Capture GIVEN/WHEN/THEN in feature files and make sure every test fails before implementation begins.**
 
@@ -129,7 +131,7 @@ Examples of foundational tasks (adjust based on your project):
 
 **Independent Test**: [How to verify this story works on its own]
 
-### Tests for User Story 2 (MANDATORY - fail-first) ⚠️
+### Tests for User Story 2 (MANDATORY - fail-first) :warning:
 
 - [ ] T050 [P] [US2] Author/update BDD scenarios for locale/tone branching and map them to glue in `src/test/java/.../bdd`
 - [ ] T051 [P] [US2] Contract test for new request fields/version headers in `src/test/java/.../contract/LetterContractV2Test.java`
@@ -153,7 +155,7 @@ Examples of foundational tasks (adjust based on your project):
 
 **Independent Test**: [How to verify this story works on its own]
 
-### Tests for User Story 3 (MANDATORY - fail-first) ⚠️
+### Tests for User Story 3 (MANDATORY - fail-first) :warning:
 
 - [ ] T060 [P] [US3] Define BDD scenarios covering metadata/attachment permutations and glue them to queue/escalation behaviors
 - [ ] T061 [P] [US3] Contract test for new metadata/attachments (if any) using WireMock for downstream dependencies
