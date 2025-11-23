@@ -19,7 +19,7 @@ description: "Task list template for feature implementation"
 - Include exact file paths in descriptions
 - Map each story to the BDD scenario IDs defined in `spec.md` so traceability is auditable
 
-**Encoding Rule**: Keep this document ASCII-only. Represent any visual cues with GitHub Markdown emoji codes (e.g., `:warning:`, `:white_check_mark:`) instead of raw Unicode symbols.
+**Encoding Rule**: Keep this document ASCII-only. Represent any visual cues with GitHub Markdown emoji codes (e.g., `:warning:`, `:white_check_mark:`) inside Markdown, but ensure Bash scripts/terminal snippets referenced here use ASCII tags like `[OK]` / `[FAIL]` instead of Markdown emoji codes.
 
 ## Path Conventions
 

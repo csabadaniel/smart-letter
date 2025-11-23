@@ -1,9 +1,8 @@
 <!--
 Sync Impact Report
-Version: 1.10.2 -> 2.0.0
+Version: 2.0.0 -> 2.0.1
 Modified Principles:
-- Core Principle I now enforces code-first interface governance with generated OpenAPI artifacts and richer documentation requirements
-- Workflow & Quality Gates reference the new interface readiness evidence (generated spec diffs instead of manual contracts)
+- Workflow & Quality Gates: Documentation encoding guardrail now clarifies that Bash/CLI output must use ASCII `[OK]/[FAIL]` and never Markdown emoji codes
 Added Sections:
 - None
 Removed Sections:
@@ -77,7 +76,7 @@ Follow-ups:
 - **Code Review Checklist**: PRs must cite which principle they satisfy, attach the generated OpenAPI diff or artifact link (instead of hand-edited specs), and show evidence that fallbacks, validation, accessibility checks, containerization/GCP deployment updates, and API key handling are covered. No merge if any checklist item is unresolved.
 - **Infrastructure as Code Evidence**: Definition of Ready and PR reviews must reference the IaC module paths being touched, include `terraform plan` (or equivalent) output, and describe how state is managed per environment. Any manual change requires a documented remediation plan to bring IaC back in sync within 24 hours.
 - **Settings Governance**: Each feature plan/spec must declare whether it introduces or updates persistent settings. Implementation MUST include migration scripts or IaC updates for Firestore documents, automated tests proving defaults, and runbooks describing how to roll back values without exceeding free tier limits.
-- **Documentation Encoding Discipline**: All documentation, templates, prompts, and governance artifacts within this repo must remain ASCII-only. Expressive symbols are permitted only via GitHub Markdown emoji codes (e.g., `:warning:`). Every PR updating docs must cite the lint/check used to enforce encoding and reviewers must block merges containing stray Unicode outside code samples.
+- **Documentation Encoding Discipline**: All documentation, templates, prompts, and governance artifacts within this repo must remain ASCII-only. Expressive symbols are permitted only via GitHub Markdown emoji codes (e.g., `:warning:`) inside Markdown files, but Bash scripts/terminal output must use plain ASCII tags like `[OK]` / `[FAIL]` instead of Markdown emoji codes. Every PR updating docs must cite the lint/check used to enforce encoding and reviewers must block merges containing stray Unicode outside code samples.
 - **Continuous Delivery Evidence**: Plans/specs/tasks must reference the GitHub Actions workflow IDs that will run for the feature, define how commit builds promote to the test environment, and show how merges to the release branch promote to production. Required artifacts (test reports, coverage summaries, Terraform plan output, SBOM, Cloud Run revision ID) must be archived per run; deployments cannot proceed until the workflow marks the quality gates as passed.
 - **Release Gate**: A release candidate must pass container image scans, complete a successful GitHub Actions-driven deploy to the test environment (triggered by the final commit) and a production deploy (triggered by merging), demonstrate zero critical alerts in staging for 24 hours, produce a sample outbound email approved by product/UX, expose the matching Swagger UI with the latest OpenAPI schema accessible to QA via API key authentication, and deliver proof that all BDD scenarios and TDD suites ran green on the release candidate. Release notes must link to the IaC change set applied, the CI/CD workflow run URLs, and include evidence that Firestore settings were migrated via code.
 
@@ -85,4 +84,4 @@ Follow-ups:
 
 This constitution supersedes other development practices for the Smart Letter service. Amendments require an RFC describing the motivation, risk assessment, and migration plan, plus approval from the service tech lead and product owner. Version changes follow semantic rules: MAJOR for removals or redefinitions of principles/sections, MINOR for new principles or expanded guardrails, PATCH for clarifications that do not change obligations. Every merged feature plan/spec/tasks document must include a "Constitution Check" section that records compliance evidence. PRs without a completed "Constitution Check" section must be rejected during review. The release engineer schedules quarterly compliance reviews; any violations must be remediated before the next release or explicitly waived with documented risk acceptance.
 
-**Version**: 2.0.0 | **Ratified**: 2025-11-22 | **Last Amended**: 2025-11-23
+**Version**: 2.0.1 | **Ratified**: 2025-11-22 | **Last Amended**: 2025-11-23

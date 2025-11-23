@@ -41,7 +41,7 @@
 - **IaC readiness**: Document the Terraform/Pulumi modules (or scripted `gcloud` tooling) under `/infra/`, what resources they manage (Cloud Run, Artifact Registry, Secret Manager, IAM, monitoring), how state is stored, and where the `plan` output will be attached for review.
 - **Persistent settings**: Describe new or updated Firestore entities/documents (kinds, collection paths, indexes), default values, migration approach (seed scripts or IaC), and how Always Free quotas will be respected.
 - **CI/CD automation**: Reference the GitHub Actions workflows (e.g., `.github/workflows/ci.yml`, `deploy-prod.yml`), triggers (push, merge), secrets, and promotion logic. Explain how quality gates (tests, coverage, Terraform plan, SBOM, container scan) feed deployment jobs and how failures block the test/prod deploy steps.
-- **Documentation encoding**: Confirm every documentation artifact touched by this feature (plan/spec/tasks/checklists/runbooks) remains ASCII-only and that expressive icons use GitHub Markdown emoji codes (e.g., `:warning:`). Reference the lint or scan that enforces this rule and note how reviewers will verify it before merge.
+- **Documentation encoding**: Confirm every documentation artifact touched by this feature (plan/spec/tasks/checklists/runbooks) remains ASCII-only, that expressive icons use GitHub Markdown emoji codes (e.g., `:warning:`) only inside Markdown, and that Bash/CLI scripts output ASCII-only status tags (e.g., `[OK]`, `[FAIL]`) rather than Markdown emoji codes. Reference the lint or scan that enforces this rule and note how reviewers will verify it before merge.
 
 ### Project Structure
 

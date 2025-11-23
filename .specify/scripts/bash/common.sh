@@ -151,6 +151,6 @@ CONTRACTS_DIR='$feature_dir/contracts'
 EOF
 }
 
-check_file() { [[ -f "$1" ]] && echo "  :heavy_check_mark: $2" || echo "  :x: $2"; }
-check_dir() { [[ -d "$1" && -n $(ls -A "$1" 2>/dev/null) ]] && echo "  :heavy_check_mark: $2" || echo "  :x: $2"; }
+check_file() { [[ -f "$1" ]] && echo "  [OK] $2" || echo "  [FAIL] $2"; }
+check_dir() { [[ -d "$1" && -n $(ls -A "$1" 2>/dev/null) ]] && echo "  [OK] $2" || echo "  [FAIL] $2"; }
 

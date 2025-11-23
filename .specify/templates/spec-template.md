@@ -109,7 +109,7 @@
 - **FR-013**: All infrastructure resources (Cloud Run, Artifact Registry, Secret Manager, IAM, monitoring) MUST be managed via code stored under `/infra/` (Terraform, Pulumi, or scripted `gcloud`). Manual console edits require retroactive IaC updates in the same iteration.
 - **FR-014**: Permanent application settings MUST persist in Cloud Firestore (Datastore mode) collections defined in IaC, stay within Always Free quotas (<= 1 GB storage, <= 50k document reads/day, <= 20k writes/day), and be accessed through typed repositories with optimistic concurrency and audit logging.
 - **FR-015**: GitHub Actions workflows must run on every commit (test deploy) and on merges to the release branch (production deploy), executing the full quality gate (lint, unit/integration/contract/BDD suites, coverage, Terraform plan, container build + scan) before invoking deployment jobs. Workflows must publish artifacts and tag Cloud Run revisions with the source commit SHA.
-- **FR-016**: All documentation artifacts generated or updated for this feature (plan, spec, tasks, checklists, runbooks) MUST remain ASCII-only. Use GitHub Markdown emoji codes (e.g., `:warning:`) for expressive icons, and document the lint/scan that proves compliance before merge.
+- **FR-016**: All documentation artifacts generated or updated for this feature (plan, spec, tasks, checklists, runbooks) MUST remain ASCII-only. Use GitHub Markdown emoji codes (e.g., `:warning:`) for expressive icons inside Markdown, but ensure Bash/CLI scripts emit ASCII-only status text (e.g., `[OK]`, `[FAIL]`) instead of Markdown emoji codes. Document the lint/scan that proves compliance before merge.
 
 *Example of marking unclear requirements:*
 

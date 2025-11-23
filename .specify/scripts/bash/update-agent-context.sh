@@ -92,7 +92,7 @@ log_info() {
 }
 
 log_success() {
-    echo ":heavy_check_mark: $1"
+    echo "[OK] $1"
 }
 
 log_error() {
