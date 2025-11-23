@@ -101,7 +101,7 @@
 - **FR-006**: The system MUST emit Micrometer metrics/logs for correlation IDs, LLM latency, email-send outcomes, and fallback activations.
 - **FR-007**: CI/CD MUST build an OCI image using Paketo Buildpacks or Jib, generate an SBOM, and push the artifact to Artifact Registry with vulnerability scanning enforced.
 - **FR-008**: Deployments MUST target Cloud Run with Always Free settings (<= 1 vCPU, <= 256 MiB memory, <= 20 concurrency) and document the exact `gcloud run deploy` or Terraform invocation.
-- **FR-009**: The service MUST authenticate every request via `X-SmartLetter-Api-Key`, enforcing 32+ byte entropy, constant-time comparisons, per-key rate limits, and rotation automation backed by Cloud Secret Manager.
+- **FR-009**: The service MUST authenticate every request via `X-SmartLetter-Api-Key`, enforcing at least 32 bytes (256 bits) of cryptographic randomness per key (e.g., base64-encoded 32-byte values), constant-time comparisons, per-key rate limits, and rotation automation backed by Cloud Secret Manager.
 - **FR-010**: Swagger UI MUST be deployed in every environment, source the same `docs/contracts/openapi.yaml`, prompt users for an API key (never storing it), and apply the same backend authentication pipeline when Try-It-Out is enabled.
 - **FR-011**: Implementation MUST follow TDD—write failing JUnit/AssertJ (and when applicable Spring Cloud Contract/Testcontainers) tests before production code, keep coverage >= 90% on changed files, and document the red -> green -> refactor cycle per story.
 - **FR-012**: Each story MUST add at least one executable BDD scenario (Gherkin via Cucumber JVM) tagged with the story ID and runnable in CI; scenarios must mirror the acceptance criteria verbatim.
