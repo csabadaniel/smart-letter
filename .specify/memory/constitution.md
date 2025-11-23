@@ -1,10 +1,10 @@
 <!--
 Sync Impact Report
-Version: 1.3.0 → 1.4.0
+Version: 1.4.0 → 1.5.0
 Modified Principles:
-- Workflow & Quality Gates (INVEST user story and incremental delivery requirements)
+- Testing Expectations upgraded to mandate TDD + BDD tooling
 Added Sections:
-- None
+- Core Principle IV. Test-Driven & Behavior-Driven Delivery
 Removed Sections:
 - None
 Templates:
@@ -37,6 +37,12 @@ Follow-ups:
 - Validate deliverability by linting links, inline CSS, and required footer content; block deployment if rendering tests fail.
 *Rationale*: The email is the only user-visible surface, so high-fidelity rendering and safety gates are mandatory.
 
+### IV. Test-Driven & Behavior-Driven Delivery
+- Every change starts with failing unit and contract tests written in JUnit 5 + AssertJ (for services/controllers) and Spring Cloud Contract or WireMock stubs (for integrations). Production code cannot be authored before the corresponding test exists and fails (Red → Green → Refactor cycle).
+- Acceptance criteria are captured as executable Gherkin scenarios (Cucumber JVM or JGiven) that exercise end-to-end flows—including prompt building, LLM call, email rendering, and fallback logic. Each user story must contribute at least one new or updated scenario.
+- Regression safety requires Testcontainers-backed integration suites for external dependencies (LLM mock, SMTP provider) plus deterministic snapshots for HTML output. Test suites run in CI on every PR and must complete in <10 minutes.
+*Rationale*: TDD + BDD keep the service verifiable, encourage incremental delivery, and document system behavior in a user-centric language.
+
 ## Service Guardrails
 
 - **Runtime Stack**: Java 21, Spring Boot 3.3.x, Gradle build, Spring MVC controllers, Spring WebClient for outbound HTTP, and Spring Mail/Jakarta Mail for SMTP. Deviations require architecture approval.
@@ -52,16 +58,16 @@ Follow-ups:
 ## Workflow & Quality Gates
 
 - **Definition of Ready**: A feature cannot enter implementation until the OpenAPI delta, prompt contract, and email template outline are documented, along with acceptance tests for success/failure paths.
-- **Testing Expectations**: Unit tests back every controller/service; contract tests stub the LLM client; snapshot/integration tests render HTML + plaintext outputs; at least one automated scenario exercises the full request → LLM → email pipeline using recorded fixtures.
+- **Testing Expectations**: Follow strict TDD: write/commit failing JUnit 5 tests (with AssertJ + Mockito) before implementation, then add code until tests pass. BDD suites (Cucumber JVM or JGiven) must express each INVEST story’s acceptance criteria in Gherkin, run in CI, and stay green. Contract tests (Spring Cloud Contract), Testcontainers integrations, and template snapshots are non-optional for touched components.
 - **Container Readiness**: Before coding begins, teams must document container resource budgets, Cloud Run service settings (region, concurrency, memory), and how the change preserves Always Free limits. Every feature plan must include build/push automation steps.
 - **Swagger Availability**: Definition of Ready also requires confirming the Swagger UI route, auth mechanism, and sample credentials for QA; all new/changed endpoints must be manually exercised through Swagger before code review completes.
 - **INVEST User Stories**: Every feature spec and plan must decompose work into INVEST-compliant stories (Independent, Negotiable, Valuable, Estimable, Small, Testable). Stories must articulate measurable acceptance criteria and can be shipped incrementally without blocking others.
 - **Incremental Delivery Cadence**: Work proceeds in short iterations. Each iteration targets the smallest shippable story, updates docs/tasks to reflect status, and must be demonstrable through Swagger or automated tests. Backlog stories stay prioritized; WIP limits prevent more than two simultaneous stories per engineer.
 - **Code Review Checklist**: PRs must cite which principle they satisfy, attach contract diffs, and show evidence that fallbacks, validation, accessibility checks, containerization/GCP deployment updates, and API key handling are covered. No merge if any checklist item is unresolved.
-- **Release Gate**: A release candidate must pass container image scans, complete a successful `gcloud run deploy` dry-run with Always Free settings, demonstrate zero critical alerts in staging for 24 hours, produce a sample outbound email approved by product/UX, and expose the matching Swagger UI with the latest OpenAPI schema accessible to QA via API key authentication.
+- **Release Gate**: A release candidate must pass container image scans, complete a successful `gcloud run deploy` dry-run with Always Free settings, demonstrate zero critical alerts in staging for 24 hours, produce a sample outbound email approved by product/UX, expose the matching Swagger UI with the latest OpenAPI schema accessible to QA via API key authentication, and deliver proof that all BDD scenarios and TDD suites ran green on the release candidate.
 
 ## Governance
 
 This constitution supersedes other development practices for the Smart Letter service. Amendments require an RFC describing the motivation, risk assessment, and migration plan, plus approval from the service tech lead and product owner. Version changes follow semantic rules: MAJOR for removals or redefinitions of principles/sections, MINOR for new principles or expanded guardrails, PATCH for clarifications that do not change obligations. Every merged feature plan/spec/tasks document must include a "Constitution Check" section that records compliance evidence. The release engineer schedules quarterly compliance reviews; any violations must be remediated before the next release or explicitly waived with documented risk acceptance.
 
-**Version**: 1.4.0 | **Ratified**: 2025-11-22 | **Last Amended**: 2025-11-23
+**Version**: 1.5.0 | **Ratified**: 2025-11-22 | **Last Amended**: 2025-11-23

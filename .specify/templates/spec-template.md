@@ -20,7 +20,7 @@
   - Demonstrated to users independently
 -->
 
-> Constitution alignment: at least one P1 story must exercise the full request → LLM → email pipeline, document the fallback narrative, and state how accessibility + observability requirements are verified. Every story you capture MUST meet INVEST (Independent, Negotiable, Valuable, Estimable, Small, Testable) so it can ship on its own.
+> Constitution alignment: at least one P1 story must exercise the full request → LLM → email pipeline, document the fallback narrative, and state how accessibility + observability requirements are verified. Every story you capture MUST meet INVEST (Independent, Negotiable, Valuable, Estimable, Small, Testable) so it can ship on its own, and each acceptance criterion must translate directly into executable Gherkin scenarios (BDD) plus TDD unit/contract tests.
 
 ### User Story 1 - [Brief Title] (Priority: P1)
 
@@ -101,11 +101,13 @@
 - **FR-008**: Deployments MUST target Cloud Run with Always Free settings (≤1 vCPU, ≤256 MiB memory, ≤20 concurrency) and document the exact `gcloud run deploy` or Terraform invocation.
 - **FR-009**: The service MUST authenticate every request via `X-SmartLetter-Api-Key`, enforcing 32+ byte entropy, constant-time comparisons, per-key rate limits, and rotation automation backed by Cloud Secret Manager.
 - **FR-010**: Swagger UI MUST be deployed in every environment, source the same `docs/contracts/openapi.yaml`, prompt users for an API key (never storing it), and apply the same backend authentication pipeline when Try-It-Out is enabled.
+- **FR-011**: Implementation MUST follow TDD—write failing JUnit/AssertJ (and when applicable Spring Cloud Contract/Testcontainers) tests before production code, keep coverage ≥90% on changed files, and document the red → green → refactor cycle per story.
+- **FR-012**: Each story MUST add at least one executable BDD scenario (Gherkin via Cucumber/JGiven) tagged with the story ID and runnable in CI; scenarios must mirror the acceptance criteria verbatim.
 
 *Example of marking unclear requirements:*
 
-- **FR-011**: System MUST deliver email through [NEEDS CLARIFICATION: provider not specified - SES, Postmark, SMTP relay?]
-- **FR-012**: LLM prompt instructions MUST support [NEEDS CLARIFICATION: languages/tones not defined]
+- **FR-013**: System MUST deliver email through [NEEDS CLARIFICATION: provider not specified - SES, Postmark, SMTP relay?]
+- **FR-014**: LLM prompt instructions MUST support [NEEDS CLARIFICATION: languages/tones not defined]
 
 ### LLM & Email Safeguards *(constitution-required)*
 
@@ -122,12 +124,19 @@
 - Capture the exact `gcloud run deploy` or infrastructure-as-code commands, including environment variables and Secret Manager references.
 - Define rollback/blue-green strategy and how cold-start latency will be measured and enforced.
 
--### Access Control & API Keys *(constitution-required)*
+### Access Control & API Keys *(constitution-required)*
 
 - Document the API key header name, minimum length/entropy, and lifecycle (creation, rotation, revocation) per environment.
 - Specify how keys are stored (Cloud Secret Manager) and injected into Cloud Run, plus audit logging strategy for authentication success/failure.
 - Describe rate limiting/quota rules per key and how breaches trigger alerts.
 - Explain how Swagger UI collects the key from the user without persisting it (session storage, clipboard) and verifies that Try-It-Out uses the same header.
+
+### Testing Discipline (TDD + BDD) *(constitution-required)*
+
+- Outline the TDD plan: which classes/tests will fail first, how red → green → refactor will be demonstrated, and coverage targets per layer.
+- Document BDD scenarios in Gherkin (Given/When/Then) tied to INVEST stories; specify tags, data fixtures, and how scenarios are executed (e.g., `mvn verify -Pcucumber`).
+- Note any Spring Cloud Contract stubs or Testcontainers environments needed to satisfy the scenario without real upstream dependencies.
+- Describe how CI enforces these suites (parallelization, expected runtime budgets, required artifacts/logs).
 
 ### Key Entities *(include if feature involves data)*
 
@@ -137,6 +146,7 @@
 - **DeployTarget**: Cloud Run configuration object (service name, region, concurrency, env vars, Secret Manager bindings) consumed by deployment scripts.
 - **ApiKeyPolicy**: Defines key format, rotation cadence, allowed scopes/environments, and rate-limit metadata referenced by authentication middleware.
 - **SwaggerEndpoint**: Captures route, auth scheme, allowed users, Try-It-Out policy, and linkage to the OpenAPI artifact per environment.
+- **TestSuiteDefinition**: Maps each INVEST story to the JUnit/AssertJ unit tests, Spring Cloud Contract/Testcontainers fixtures, and Cucumber scenarios that prove it works.
 
 ## Success Criteria *(mandatory)*
 
@@ -156,3 +166,4 @@
 - **SC-007**: Swagger UI is reachable in staging and production with current OpenAPI docs, enforced auth, and recorded manual test evidence per release.
 - **SC-008**: 100% of API keys rotate within the mandated window (≤90 days) with audit logs demonstrating issuance, rotation, and revocation events.
 - **SC-009**: Every delivered iteration ships at least one INVEST-compliant story with all acceptance tests automated or documented, and no in-flight story remains open for more than two iterations.
+- **SC-010**: 100% of new code is covered by tests authored via TDD (>=90% coverage on changed files) and each INVEST story has at least one passing Cucumber scenario recorded in CI artifacts for the release.

@@ -8,7 +8,7 @@ description: "Task list template for feature implementation"
 **Input**: Design documents from `/specs/[###-feature-name]/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+**Tests**: Per Constitution Principle IV, every user story MUST begin with living BDD scenarios plus failing automated tests (unit, integration, contract). Only skip tests if the specification explicitly documents an exception and reviewers accept the risk.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
@@ -17,6 +17,7 @@ description: "Task list template for feature implementation"
 - **[P]**: Can run in parallel (different files, no dependencies)
 - **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
+- Map each story to the BDD scenario IDs defined in `spec.md` so traceability is auditable
 
 ## Path Conventions
 
@@ -51,9 +52,10 @@ description: "Task list template for feature implementation"
 - [ ] T001 Scaffold Spring Boot 3.3 project (Gradle) with base package `com.smartletter`
 - [ ] T002 Add baseline OpenAPI contract under `docs/contracts/openapi.yaml` and wire swagger generation task
 - [ ] T003 [P] Configure Spotless/Checkstyle, Error Prone, and formatter rules matching constitution guardrails
-- [ ] T004 [P] Set up Git hooks/CI jobs that block merges when constitution checks fail
+- [ ] T004 [P] Set up Git hooks/CI jobs that block merges when constitution checks fail, including `test`, `bddTest`, and `contractTest` gates
 - [ ] T005 [P] Add Springdoc OpenAPI + Swagger UI dependencies, seed `/swagger-ui` route, and disable Try-It-Out by default
 - [ ] T006 Define API key header (`X-SmartLetter-Api-Key`), add sample property placeholders, and document rotation procedures in `docs/security/api-keys.md`
+- [ ] T007 [P] Install and verify the baseline testing toolchain (JUnit 5, AssertJ, Mockito, Spring Cloud Contract, Testcontainers, Cucumber/JGiven) with Gradle tasks (`test`, `contractTest`, `bddTest`) and document how to run them before implementation starts
 
 ---
 
@@ -65,19 +67,21 @@ description: "Task list template for feature implementation"
 
 Examples of foundational tasks (adjust based on your project):
 
-- [ ] T007 Create shared DTOs, validation annotations, and exception mappers for `POST /letters`
-- [ ] T008 [P] Implement shared `SmartLetterLlmClient` with WebClient, timeouts, retry/backoff, and prompt redaction utilities
-- [ ] T009 Configure email templating directories (`src/main/resources/templates/`) plus Thymeleaf + sanitizer configuration
-- [ ] T010 Configure Spring Mail provider credentials, provider-specific headers, and health probes
-- [ ] T011 Add Micrometer metrics, tracing filters, and log correlation for request → LLM → email path
-- [ ] T012 Define deterministic fallback email content and store snapshots under `src/test/resources/templates/__snapshots__/`
-- [ ] T013 Setup environment configuration management (Spring Config + secrets manager bindings)
-- [ ] T014 [P] Configure Paketo Buildpacks or Jib settings (including SBOM generation) and ensure the resulting image runs as non-root
-- [ ] T015 [P] Create Artifact Registry repository, `infra/cloudrun/service.yaml`, and `scripts/deploy-cloudrun.sh` with Always Free tier limits baked in
-- [ ] T016 [P] Implement API key authentication filter/interceptor plus constant-time comparison utility in `src/main/java/.../security`
-- [ ] T017 Wire API key storage via Cloud Secret Manager + Spring Config, add rotation cron/runbook, and emit audit logs for auth successes/failures
-- [ ] T018 [P] Secure `/swagger-ui` with IAP or Basic Auth, document QA credentials, and wire audit logging for usage
-- [ ] T019 Add automated check ensuring the deployed OpenAPI JSON matches `docs/contracts/openapi.yaml` and is linked from Swagger UI
+- [ ] T010 Create shared DTOs, validation annotations, and exception mappers for `POST /letters`
+- [ ] T011 [P] Implement shared `SmartLetterLlmClient` with WebClient, timeouts, retry/backoff, and prompt redaction utilities
+- [ ] T012 Configure email templating directories (`src/main/resources/templates/`) plus Thymeleaf + sanitizer configuration
+- [ ] T013 Configure Spring Mail provider credentials, provider-specific headers, and health probes
+- [ ] T014 Add Micrometer metrics, tracing filters, and log correlation for request → LLM → email path
+- [ ] T015 Define deterministic fallback email content and store snapshots under `src/test/resources/templates/__snapshots__/`
+- [ ] T016 Setup environment configuration management (Spring Config + secrets manager bindings)
+- [ ] T017 [P] Configure Paketo Buildpacks or Jib settings (including SBOM generation) and ensure the resulting image runs as non-root
+- [ ] T018 [P] Create Artifact Registry repository, `infra/cloudrun/service.yaml`, and `scripts/deploy-cloudrun.sh` with Always Free tier limits baked in
+- [ ] T019 [P] Implement API key authentication filter/interceptor plus constant-time comparison utility in `src/main/java/.../security`
+- [ ] T020 Wire API key storage via Cloud Secret Manager + Spring Config, add rotation cron/runbook, and emit audit logs for auth successes/failures
+- [ ] T021 [P] Secure `/swagger-ui` with IAP or Basic Auth, document QA credentials, and wire audit logging for usage
+- [ ] T022 Add automated check ensuring the deployed OpenAPI JSON matches `docs/contracts/openapi.yaml` and is linked from Swagger UI
+- [ ] T023 [P] Create shared BDD assets (`src/test/resources/features`, glue packages, JGiven stages), seed sample feature mapping to US1, and document naming conventions
+- [ ] T024 Wire Spring Cloud Contract + Testcontainers base classes into CI so `contractTest` and `bddTest` fail the build when scenarios are missing or out-of-date
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -89,21 +93,22 @@ Examples of foundational tasks (adjust based on your project):
 
 **Independent Test**: [How to verify this story works on its own]
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+### Tests for User Story 1 (MANDATORY - fail-first) ⚠️
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+> **NOTE: Capture GIVEN/WHEN/THEN in feature files and make sure every test fails before implementation begins.**
 
-- [ ] T020 [P] [US1] Contract test for `POST /letters` using MockMvc + OpenAPI validator in `src/test/java/.../contract/LetterContractTest.java`
-- [ ] T021 [P] [US1] Snapshot test for HTML + plaintext templates in `src/test/java/.../templates/LetterTemplateSnapshotTest.java`
-- [ ] T022 [US1] Integration test covering request → LLM stub → email fallback in `src/test/java/.../integration/LetterFlowIT.java`
+- [ ] T030 [P] [US1] Author/update Cucumber (or JGiven) acceptance scenarios plus glue code under `src/test/resources/features/us1/*.feature`
+- [ ] T031 [P] [US1] Contract test for `POST /letters` using MockMvc + OpenAPI validator in `src/test/java/.../contract/LetterContractTest.java`
+- [ ] T032 [P] [US1] Snapshot test for HTML + plaintext templates in `src/test/java/.../templates/LetterTemplateSnapshotTest.java`
+- [ ] T033 [US1] Integration test covering request → LLM stub → email fallback in `src/test/java/.../integration/LetterFlowIT.java`
 
 ### Implementation for User Story 1
 
-- [ ] T023 [P] [US1] Implement `LetterRequest`/`LetterResponse` DTOs with validation in `src/main/java/.../api/`
-- [ ] T024 [P] [US1] Build orchestrator service `LetterService` combining LLM output + fallback template
-- [ ] T025 [US1] Implement `LetterController` with OpenAPI annotations and contract tests
-- [ ] T026 [US1] Add Micrometer timers and structured logging for correlation IDs across controller/service/client layers
-- [ ] T027 [US1] Record fallback incidents to persistent audit store (if enabled)
+- [ ] T034 [P] [US1] Implement `LetterRequest`/`LetterResponse` DTOs with validation in `src/main/java/.../api/`
+- [ ] T035 [P] [US1] Build orchestrator service `LetterService` combining LLM output + fallback template
+- [ ] T036 [US1] Implement `LetterController` with OpenAPI annotations and contract tests
+- [ ] T037 [US1] Add Micrometer timers and structured logging for correlation IDs across controller/service/client layers
+- [ ] T038 [US1] Record fallback incidents to persistent audit store (if enabled)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -115,18 +120,19 @@ Examples of foundational tasks (adjust based on your project):
 
 **Independent Test**: [How to verify this story works on its own]
 
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
+### Tests for User Story 2 (MANDATORY - fail-first) ⚠️
 
-- [ ] T030 [P] [US2] Contract test for new request fields/version headers in `src/test/java/.../contract/LetterContractV2Test.java`
-- [ ] T031 [P] [US2] Rendering regression test for new template variant (locale, tone) in `src/test/java/.../templates/...`
-- [ ] T032 [US2] Integration test simulating LLM retry/exponential backoff vs provider throttling
+- [ ] T040 [P] [US2] Author/update BDD scenarios for locale/tone branching and map them to glue in `src/test/java/.../bdd`
+- [ ] T041 [P] [US2] Contract test for new request fields/version headers in `src/test/java/.../contract/LetterContractV2Test.java`
+- [ ] T042 [P] [US2] Rendering regression test for new template variant (locale, tone) in `src/test/java/.../templates/...`
+- [ ] T043 [US2] Integration test simulating LLM retry/exponential backoff vs provider throttling
 
 ### Implementation for User Story 2
 
-- [ ] T033 [P] [US2] Extend prompt builder to support locale/tone switches in `src/main/java/.../llm/PromptBuilder.java`
-- [ ] T034 [US2] Update email renderer to select correct template pair and ensure accessibility annotations
-- [ ] T035 [US2] Wire API version negotiation or feature flags while keeping v1 contract intact
-- [ ] T036 [US2] Update metrics/alerts for the new variant-specific KPIs
+- [ ] T044 [P] [US2] Extend prompt builder to support locale/tone switches in `src/main/java/.../llm/PromptBuilder.java`
+- [ ] T045 [US2] Update email renderer to select correct template pair and ensure accessibility annotations
+- [ ] T046 [US2] Wire API version negotiation or feature flags while keeping v1 contract intact
+- [ ] T047 [US2] Update metrics/alerts for the new variant-specific KPIs
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -138,18 +144,19 @@ Examples of foundational tasks (adjust based on your project):
 
 **Independent Test**: [How to verify this story works on its own]
 
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
+### Tests for User Story 3 (MANDATORY - fail-first) ⚠️
 
-- [ ] T040 [P] [US3] Contract test for new metadata/attachments (if any) using WireMock for downstream dependencies
-- [ ] T041 [P] [US3] Load test scenario for throughput/latency budgets using Gatling or k6
-- [ ] T042 [US3] Integration test for fallback escalation path (e.g., queueing manual review)
+- [ ] T050 [P] [US3] Define BDD scenarios covering metadata/attachment permutations and glue them to queue/escalation behaviors
+- [ ] T051 [P] [US3] Contract test for new metadata/attachments (if any) using WireMock for downstream dependencies
+- [ ] T052 [P] [US3] Load test scenario for throughput/latency budgets using Gatling or k6
+- [ ] T053 [US3] Integration test for fallback escalation path (e.g., queueing manual review)
 
 ### Implementation for User Story 3
 
-- [ ] T043 [P] [US3] Introduce new domain model (e.g., Attachment, ChannelPreference) with validation + persistence if required
-- [ ] T044 [US3] Extend orchestrator to branch logic (LLM vs manual template) based on policy engine result
-- [ ] T045 [US3] Implement supporting scheduler/queue integration if escalations need async handling
-- [ ] T046 [US3] Update observability dashboards and alerts for new flow variants
+- [ ] T054 [P] [US3] Introduce new domain model (e.g., Attachment, ChannelPreference) with validation + persistence if required
+- [ ] T055 [US3] Extend orchestrator to branch logic (LLM vs manual template) based on policy engine result
+- [ ] T056 [US3] Implement supporting scheduler/queue integration if escalations need async handling
+- [ ] T057 [US3] Update observability dashboards and alerts for new flow variants
 
 **Checkpoint**: All user stories should now be independently functional
 
