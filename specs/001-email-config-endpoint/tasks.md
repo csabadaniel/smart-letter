@@ -57,7 +57,7 @@
 
 ## Phase 4: User Story 2 – Audit Current Configuration (Priority: P2)
 
-**Goal**: Provide `GET /v1/config/delivery` so compliance can read the latest configuration + audit metadata with cache/etag headers.
+**Goal**: Provide `GET /v1/config/delivery` so the compliance team can read the latest configuration + audit metadata with cache/etag headers.
 **Independent Test**: Calling GET with API key returns 200 and headers after a prior PUT; calling GET before any PUT returns 404 `CONFIG_NOT_FOUND`, and both cases are covered by BDD + integration tests without invoking downstream pipelines.
 
 ### Tests (fail first)
