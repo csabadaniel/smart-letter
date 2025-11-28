@@ -15,11 +15,9 @@ tests/
 
 ## Commands
 
-# Add commands for 
-
 ## Code Style
 
-: Follow standard conventions
+Java: Follow standard and Spring conventions
 
 ## Recent Changes
 
