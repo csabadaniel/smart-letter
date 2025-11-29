@@ -11,6 +11,7 @@ Expose authenticated `PUT /v1/config/delivery` and `GET /v1/config/delivery` end
 
 - **Language & Framework**: Java 21 with Spring Boot 3.3.x, Spring MVC controllers (`DeliveryConfigurationController`), and component-scanned services/repositories under `com.smartletter.settings`.
 - **Dependencies**: Spring Web, Spring Validation, Spring Security API key middleware, Spring Cloud GCP Firestore starter, Micrometer, Springdoc OpenAPI, Cucumber, Testcontainers (Firestore emulator), and Maven Wrapper for builds/tests.
+- **Scaffolding & Starters**: The service was originally generated via Spring Boot CLI (`spring init --dependencies=web,validation,data-firestore`) and any new module wiring for this feature (controllers, services, config) must continue to rely on official Spring Boot Starters per Constitution v2.1.1 Runtime Stack guardrail; no ad-hoc manual bootstrapping is allowed.
 - **Interfaces**: New DTOs `DeliveryConfigurationRequest`, `DeliveryConfigurationResponse`, and `ErrorResponse` align with annotated controller methods so `./mvnw springdoc-openapi:generate` outputs the contract consumed by Swagger UI.
 - **Storage**: Single Firestore document `appSettings/configuration/delivery` holds the fields listed in the spec. Postgres email audit log schema is untouched.
 - **Caching**: DeliveryConfigurationService caches the Firestore record for 60s, invalidates on successful PUT, and exposes `ETag` plus `Last-Modified` so future request -> LLM -> email flows can short-circuit when the config changes.
