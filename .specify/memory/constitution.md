@@ -1,8 +1,8 @@
 <!--
 Sync Impact Report
-Version: 2.0.0 -> 2.0.1
+Version: 2.1.0 -> 2.1.1
 Modified Principles:
-- Workflow & Quality Gates: Documentation encoding guardrail now clarifies that Bash/CLI output must use ASCII `[OK]/[FAIL]` and never Markdown emoji codes
+- Service Guardrails – Runtime Stack now states Spring Boot CLI must be used for initial scaffolding
 Added Sections:
 - None
 Removed Sections:
@@ -51,7 +51,7 @@ Follow-ups:
 
 ## Service Guardrails
 
-- **Runtime Stack**: Java 21, Spring Boot 3.3.x, Maven build (enforced via Maven Wrapper `./mvnw`), Spring MVC controllers, Spring WebClient for outbound HTTP, and Spring Mail/Jakarta Mail for SMTP. Deviations require architecture approval.
+- **Runtime Stack**: Java 21, Spring Boot 3.3.x, Maven build (enforced via Maven Wrapper `./mvnw`), Spring MVC controllers, Spring WebClient for outbound HTTP, and Spring Mail/Jakarta Mail for SMTP. Every service must be scaffolded initially via Spring Boot CLI (e.g., `spring init --dependencies=web,validation,...`) and maintained through official Spring Boot Starter dependencies (no ad-hoc wiring) so cross-cutting concerns stay consistent. Deviations require architecture approval.
 - **LLM Integration**: Use HTTPS JSON APIs with API-key auth stored in the secrets manager; prompts live in `src/main/resources/prompts/` and must be versioned.
 - **Email Delivery**: Store templates in `src/main/resources/templates/` with paired HTML/text variants, and send via a provider that supports rich text (e.g., SES, Postmark). Capture provider message IDs for traceability.
 - **Configuration & Secrets**: Manage via Spring Config + environment variables; never persist raw LLM responses beyond transient processing logs.
@@ -84,4 +84,4 @@ Follow-ups:
 
 This constitution supersedes other development practices for the Smart Letter service. Amendments require an RFC describing the motivation, risk assessment, and migration plan, plus approval from the service tech lead and product owner. Version changes follow semantic rules: MAJOR for removals or redefinitions of principles/sections, MINOR for new principles or expanded guardrails, PATCH for clarifications that do not change obligations. Every merged feature plan/spec/tasks document must include a "Constitution Check" section that records compliance evidence. PRs without a completed "Constitution Check" section must be rejected during review. The release engineer schedules quarterly compliance reviews; any violations must be remediated before the next release or explicitly waived with documented risk acceptance.
 
-**Version**: 2.0.1 | **Ratified**: 2025-11-22 | **Last Amended**: 2025-11-23
+**Version**: 2.1.1 | **Ratified**: 2025-11-22 | **Last Amended**: 2025-11-29
