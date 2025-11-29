@@ -65,6 +65,12 @@ As the SRE, I want configuration update attempts (success, validation failure, u
 - **FR-019**: Persist configuration changes in Firestore with encryption-at-rest, redact the raw prompt from structured logs (store only SHA-256 hash), and emit Micrometer metrics/log entries for success/failure including actor identity (derived from API key metadata).
 - **FR-020**: Surface configuration values to downstream beans via a typed `DeliveryConfigurationService` that caches the Firestore document with TTL <= 60s and invalidates on successful updates; future request -> LLM -> email flows must consume this service instead of environment variables.
 
+### Runtime Stack & Scaffolding *(constitution-required)*
+
+- Service code continues to target Java 21 + Spring Boot 3.3.x with controllers under `com.smartletter.api` and settings/services under `com.smartletter.settings`, matching the original Spring Boot CLI scaffold (`spring init --dependencies=web,validation,data-firestore,actuator`); any new components for this feature must keep using official Spring Boot Starters instead of ad-hoc wiring.
+- Build inputs remain Maven Wrapper (`./mvnw ...`) + Paketo Buildpacks so container images inherit the same baseline as every other Constitution-governed service; deviations (e.g., manual Dockerfiles) are disallowed unless documented as a waiver in Complexity Tracking.
+- Code reviews require evidence (CLI command snippet or generated files) that new modules/classes align with the CLI-generated structure, ensuring cross-cutting auto-configuration (validation, actuator, Micrometer) stays consistent without custom bootstrapping.
+
 ### LLM & Email Safeguards *(constitution-required)*
 
 - This feature does not contact the LLM directly; it stores the prompt that future stories will pass to the request -> LLM -> email pipeline. Constitution Check will record the temporary exception for live pipeline coverage.
@@ -100,12 +106,19 @@ As the SRE, I want configuration update attempts (success, validation failure, u
 - Both workflows publish artifacts: JUnit XML, Cucumber reports, `docs/contracts/openapi.yaml`, Terraform plan, SBOM, container digest; they also annotate Cloud Run revisions with the commit SHA and emit Slack webhook notifications.
 - Rollback expectations: revert commit + rerun workflow or trigger manual job with previous digest; document manual steps in the runbook referenced by tasks.md.
 
+### Documentation Encoding Discipline *(constitution-required)*
+
+- All feature artifacts (spec, plan, research, data model, quickstart, tasks, checklists) remain ASCII-only; contributors run `./scripts/ascii-scan.sh specs/001-email-config-endpoint` locally before commits, and CI blocks merges if the scanner detects Unicode.
+- Markdown files may use GitHub emoji codes (e.g., `:warning:`) but this specification currently relies solely on ASCII punctuation; reviewers confirm diffs show ASCII via the doc lint output linked in PRs.
+- Bash/CLI snippets embedded in documentation keep `[OK]` / `[FAIL]` style status tags so automated scripts and humans can read them without Markdown rendering.
+
 ### Access Control & API Keys *(constitution-required)*
 
 - Continue using `X-SmartLetter-Api-Key` with 32-byte randomness; configuration endpoints sit behind the same middleware and future IAM-protected Cloud Run ingress.
 - Keys live in Cloud Secret Manager (`smart-letter-api-key-{env}`) and are injected via Cloud Run env var; middleware logs success/failure with hashed key ID.
 - Rate limit: 30 config writes/hour/key, 120 reads/hour/key; Micrometer counters feed alert `config.update.rate_limit_exceeded`.
 - Swagger UI prompts for the API key, stores it in session storage only, and ensures Try-It-Out uses the identical header; docs remind admins to clear browser storage after use.
+- Swagger UI Try-It-Out remains enabled in staging/test only; production Swagger stays behind identity-aware proxy with Try-It-Out disabled, so validation occurs via dedicated QA requests that still honor the API key header.
 
 ### Testing Discipline (TDD + BDD) *(constitution-required)*
 

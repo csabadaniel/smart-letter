@@ -31,4 +31,4 @@
 
 ## Notes
 
-- All checklist items verified for `/speckit.plan` readiness.
+- All checklist items re-validated on 2025-11-29 after Constitution v2.1.1 alignment; specification is ready for `/speckit.plan` consumers.
