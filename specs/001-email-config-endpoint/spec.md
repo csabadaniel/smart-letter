@@ -83,7 +83,7 @@ As the SRE, I want configuration update attempts (success, validation failure, u
 
 - Continue using Paketo Buildpacks via `./mvnw spring-boot:build-image`, tag images as `gcr.io/<project>/smart-letter:<commit-sha>`, and promote via Terraform apply referencing that digest.
 - Artifact Registry repo `us-docker.pkg.dev/<project>/smart-letter` stores the image; SBOM produced by Buildpacks is uploaded as workflow artifact; vulnerability scan gate must pass before deploy job runs.
-- Cloud Run configuration remains `us-central1`, 1 vCPU, 256 MiB, max concurrency 20, min instances 0, CPU on-demand—well inside Always Free assumptions.
+- Cloud Run configuration remains `us-central1`, 1 vCPU, 256 MiB, max concurrency 20, min instances 0, CPU on-demand-well inside Always Free assumptions.
 - Deployments continue through Terraform (`infra/cloudrun/main.tf`) plus helper script `infra/scripts/deploy-cloudrun.sh` documenting `gcloud run services replace`; include the new config service env vars/secrets (Firestore collection name) within IaC.
 - Terraform state stored in GCS backend `gs://smart-letter-terraform-state`; attach plan output to PR (FR-015) referencing new variables.
 - Rollback: redeploy previous image digest + revert Firestore document if the new schema fails; measure cold start via `config.update.success` duration metric to ensure < 500 ms p95.
@@ -146,4 +146,4 @@ As the SRE, I want configuration update attempts (success, validation failure, u
 - **SC-006**: Firestore document updates for this feature remain below 100 writes/day and < 10 kB storage, keeping Always Free usage under 1% of quotas.
 - **SC-007**: Swagger UI in staging demonstrates both endpoints with successful Try-It-Out execution using a temporary API key before code review completes.
 - **SC-008**: Coverage on `DeliveryConfiguration*` classes stays >= 95%, and at least four Cucumber scenarios run green in CI for this feature.
-- **SC-009**: Alerting pipeline detects and notifies on ≥5 unauthorized configuration attempts within 60 seconds during chaos testing.
+- **SC-009**: Alerting pipeline detects and notifies on >=5 unauthorized configuration attempts within 60 seconds during chaos testing.
