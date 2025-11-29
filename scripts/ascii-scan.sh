@@ -62,13 +62,10 @@ for byte in data:
     col += 1
 
 if issues:
-    print(f"{path}")
-    for line, col, byte in issues:
-        if 32 <= byte <= 126:
-            display = chr(byte)
-        else:
-            display = f"0x{byte:02X}"
-        print(f"  line {line}, column {col}: {display}")
+  print(f"{path}")
+  for line, col, byte in issues:
+    display = f"0x{byte:02X}"
+    print(f"  line {line}, column {col}: {display}")
     sys.exit(1)
 PY
 }
