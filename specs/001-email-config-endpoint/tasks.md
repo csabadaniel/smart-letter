@@ -14,7 +14,7 @@
 
 - [ ] T001 Update `pom.xml` with Spring Cloud GCP Firestore starter, Micrometer meter-registry bindings, and SHA-256 utility dependency so config endpoints can compile.
 - [ ] T002 Add `delivery-config.collection-path`, `delivery-config.cache-ttl-seconds`, and API-key metadata placeholders to `src/main/resources/application.yml` plus document defaults/comments for every environment.
-- [ ] T003 Refresh `specs/001-email-config-endpoint/quickstart.md` to include Firestore emulator env exports, API key loading instructions, ASCII-only verification steps, and the exact Spring Boot CLI scaffolding command mandated by Constitution v2.1.1.
+- [ ] T003 Refresh `specs/001-email-config-endpoint/quickstart.md` to include Firestore emulator env exports, API key loading instructions, ASCII-only verification steps, and the exact Spring Initializr configuration mandated by Constitution v2.2.0.
 
 ---
 

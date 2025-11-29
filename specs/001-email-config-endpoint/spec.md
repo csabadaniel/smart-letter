@@ -67,7 +67,7 @@ As the SRE, I want configuration update attempts (success, validation failure, u
 
 ### Runtime Stack & Scaffolding *(constitution-required)*
 
-- Service code continues to target Java 21 + Spring Boot 3.3.x with controllers under `com.smartletter.api` and settings/services under `com.smartletter.settings`, matching the original Spring Boot CLI scaffold (`spring init --dependencies=web,validation,data-firestore,actuator`); any new components for this feature must keep using official Spring Boot Starters instead of ad-hoc wiring.
+- Service code continues to target Java 21 + Spring Boot 3.3.x with controllers under `com.smartletter.api` and settings/services under `com.smartletter.settings`, matching the original Spring Initializr scaffold (https://start.spring.io with dependencies `web,validation,data-firestore,actuator`); any new components for this feature must keep using official Spring Boot Starters instead of ad-hoc wiring.
 - Build inputs remain Maven Wrapper (`./mvnw ...`) + Paketo Buildpacks so container images inherit the same baseline as every other Constitution-governed service; deviations (e.g., manual Dockerfiles) are disallowed unless documented as a waiver in Complexity Tracking.
 - Code reviews require evidence (CLI command snippet or generated files) that new modules/classes align with the CLI-generated structure, ensuring cross-cutting auto-configuration (validation, actuator, Micrometer) stays consistent without custom bootstrapping.
 
