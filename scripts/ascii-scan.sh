@@ -63,11 +63,11 @@ for byte in data:
     line += 1
     col = 1
     continue
-    if byte > 127:
-        issues.append((line, col, byte))
-        if len(issues) >= 5:
-            break
-    col += 1
+  if byte > 127:
+    issues.append((line, col, byte))
+    if len(issues) >= 5:
+      break
+  col += 1
 
 if issues:
   print(f"{path}")
