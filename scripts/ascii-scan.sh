@@ -26,6 +26,11 @@ if [[ ${#TARGETS[@]} -eq 0 ]]; then
   TARGETS=("${DEFAULT_TARGETS[@]}")
 fi
 
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "[FAIL] python3 is required but not installed"
+  exit 1
+fi
+
 is_text_file() {
   case "$1" in
     *.png|*.jpg|*.jpeg|*.gif|*.ico|*.pdf|*.zip|*.jar|*.class|*.bin)
