@@ -56,10 +56,13 @@ with path.open('rb') as fh:
 line = 1
 col = 1
 for byte in data:
-    if byte == 10:
-        line += 1
-        col = 1
-        continue
+  if byte == 13:
+    # Ignore carriage return; column should not advance
+    continue
+  if byte == 10:
+    line += 1
+    col = 1
+    continue
     if byte > 127:
         issues.append((line, col, byte))
         if len(issues) >= 5:
