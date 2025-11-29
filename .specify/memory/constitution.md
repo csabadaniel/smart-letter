@@ -8,7 +8,9 @@ Added Sections:
 Removed Sections:
 - None
 Templates:
-- None
+- .specify/templates/plan-template.md :white_check_mark: updated
+- .specify/templates/spec-template.md :white_check_mark: updated
+- .specify/templates/tasks-template.md :white_check_mark: updated
 Follow-ups:
 - None
 -->
