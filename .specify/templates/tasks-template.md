@@ -51,7 +51,7 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Scaffold Spring Boot 3.3 project (Maven, using `./mvnw`) with base package `com.smartletter`
+- [ ] T001 Scaffold Spring Boot 3.3 project via Spring Boot CLI (`spring init --dependencies=web,validation,...`) and Maven Wrapper (`./mvnw`) with base package `com.smartletter`
 - [ ] T002 Configure Springdoc/OpenAPI code-first generation (annotate baseline controllers) so `./mvnw springdoc-openapi:generate` produces `docs/contracts/openapi.yaml`; document the command in `docs/contracts/README.md`
 - [ ] T003 [P] Configure Spotless/Checkstyle, Error Prone, and formatter rules matching constitution guardrails
 - [ ] T004 [P] Set up Git hooks/CI jobs that block merges when constitution checks fail, including `test`, `bddTest`, and `contractTest` gates
