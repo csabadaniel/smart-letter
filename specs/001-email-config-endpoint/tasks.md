@@ -14,7 +14,7 @@
 
 - [ ] T001 Update `pom.xml` with Spring Cloud GCP Firestore starter, Micrometer meter-registry bindings, and SHA-256 utility dependency so config endpoints can compile.
 - [ ] T002 Add `delivery-config.collection-path`, `delivery-config.cache-ttl-seconds`, and API-key metadata placeholders to `src/main/resources/application.yml` plus document defaults/comments for every environment.
-- [ ] T003 Refresh `specs/001-email-config-endpoint/quickstart.md` to include Firestore emulator env exports, API key loading instructions, and ASCII-only verification steps from the latest plan.
+- [ ] T003 Refresh `specs/001-email-config-endpoint/quickstart.md` to include Firestore emulator env exports, API key loading instructions, ASCII-only verification steps, and the exact Spring Boot CLI scaffolding command mandated by Constitution v2.1.1.
 
 ---
 
@@ -70,7 +70,7 @@
 - [ ] T020 [US2] Implement `DeliveryConfigurationService.getConfiguration()` returning cached data, populating `ETag`/`Last-Modified`, and throwing typed exceptions when missing.
 - [ ] T021 [US2] Add `DeliveryConfigurationController.getConfig` with `@GetMapping`, cache-control headers, and API key auth in `src/main/java/com/smartletter/settings/api/`.
 - [ ] T022 [US2] Update `src/main/java/com/smartletter/settings/api/ApiErrorHandler.java` (or equivalent) to emit typed `CONFIG_NOT_FOUND` payloads and add header writers for ETag/Cache-Control.
-- [ ] T023 [US2] Document GET usage, cache semantics, and deployment gating steps in `docs/runbooks/config-governance.md`.
+- [ ] T023 [US2] Document GET usage, cache semantics, staging-vs-production Swagger Try-It-Out policy, and deployment gating steps in `docs/runbooks/config-governance.md`.
 
 **Checkpoint**: GET endpoint independently testable via Swagger and automated suites.
 
@@ -102,7 +102,7 @@
 **Goal**: Harden documentation, deployment evidence, and manual validations before merge/deploy.
 **Independent Test**: Quickstart steps run cleanly on a fresh machine, ASCII/doc lint passes, Swagger UI validated in staging, and IaC/CI artifacts attached to PR.
 
-- [ ] T030 [P] Run quickstart flow end-to-end (tests, OpenAPI generation, Swagger UI manual PUT/GET) and capture evidence in `specs/001-email-config-endpoint/quickstart.md`.
+- [ ] T030 [P] Run quickstart flow end-to-end (tests, OpenAPI generation, staging Swagger UI manual PUT/GET with API key) and capture evidence in `specs/001-email-config-endpoint/quickstart.md` including the production Try-It-Out restriction.
 - [ ] T031 [P] Ensure `.github/workflows/ci.yml` and `deploy-prod.yml` include new test suites (`-Pfirestore-emulator`, observability tests) plus artifact uploads for OpenAPI + Terraform plan.
 - [ ] T032 Confirm ASCII-only documentation by running `./scripts/ascii-scan.sh specs/001-email-config-endpoint` and update `docs/RELEASE_NOTES.md` with pointers to CI runs, Terraform plan, and alert policy diffs.
 
