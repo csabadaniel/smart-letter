@@ -11,6 +11,7 @@ Expose authenticated `PUT /v1/config/delivery` and `GET /v1/config/delivery` end
 
 - **Language & Framework**: Java 21 with Spring Boot 3.3.x, Spring MVC controllers (`DeliveryConfigurationController`), and component-scanned services/repositories under `com.smartletter.settings`.
 - **Dependencies**: Spring Web, Spring Validation, Spring Security API key middleware, Spring Cloud GCP Firestore starter, Micrometer, Springdoc OpenAPI, Cucumber, Testcontainers (Firestore emulator), and Maven Wrapper for builds/tests.
+- **Scaffolding & Starters**: The service was originally generated via Spring Boot CLI (`spring init --dependencies=web,validation,data-firestore`) and any new module wiring for this feature (controllers, services, config) must continue to rely on official Spring Boot Starters per Constitution v2.1.1 Runtime Stack guardrail; no ad-hoc manual bootstrapping is allowed.
 - **Interfaces**: New DTOs `DeliveryConfigurationRequest`, `DeliveryConfigurationResponse`, and `ErrorResponse` align with annotated controller methods so `./mvnw springdoc-openapi:generate` outputs the contract consumed by Swagger UI.
 - **Storage**: Single Firestore document `appSettings/configuration/delivery` holds the fields listed in the spec. Postgres email audit log schema is untouched.
 - **Caching**: DeliveryConfigurationService caches the Firestore record for 60s, invalidates on successful PUT, and exposes `ETag` plus `Last-Modified` so future request -> LLM -> email flows can short-circuit when the config changes.
@@ -19,9 +20,9 @@ Expose authenticated `PUT /v1/config/delivery` and `GET /v1/config/delivery` end
 - **Deployment**: No new runtime targets. The existing Cloud Run service image (Paketo Buildpacks) and Terraform modules gain updated env vars/secrets so DeliveryConfigurationService knows the Firestore collection name and cache TTL. Always Free budgets (<=1 vCPU, <=256 MiB, <=20 concurrency) still apply.
 - **Testing**: TDD + BDD via JUnit 5 + AssertJ, Spring Boot slice tests for controllers, Testcontainers Firestore emulator integration tests for optimistic locking, and `src/test/resources/features/configuration/config_management.feature` Cucumber scenarios tagged `@US1`, `@US2`.
 - **Open questions resolved in Phase 0 research**:
-  1. Firestore optimistic locking approach – originally flagged as NEEDS CLARIFICATION; resolved by Research Task R1 to use transactions with `version` preconditions and SHA-256 prompt hashing.
-  2. `updatedBy` derivation – NEEDS CLARIFICATION; Research Task R2 established that API key middleware exposes `ApiKeyMetadata` so controllers can populate `updatedBy` with the key owner slug + environment, falling back to `unknown` if metadata is missing.
-  3. Metric naming and alert budget – NEEDS CLARIFICATION; Research Task R3 standardized Micrometer metric names, labels, and alert thresholds so SRE dashboards remain consistent with Constitution Section II/III observability rules.
+  1. Firestore optimistic locking approach - originally flagged as NEEDS CLARIFICATION; resolved by Research Task R1 to use transactions with `version` preconditions and SHA-256 prompt hashing.
+  2. `updatedBy` derivation - NEEDS CLARIFICATION; Research Task R2 established that API key middleware exposes `ApiKeyMetadata` so controllers can populate `updatedBy` with the key owner slug + environment, falling back to `unknown` if metadata is missing.
+  3. Metric naming and alert budget - NEEDS CLARIFICATION; Research Task R3 standardized Micrometer metric names, labels, and alert thresholds so SRE dashboards remain consistent with Constitution Section II/III observability rules.
 
 ## Constitution Check
 
@@ -32,7 +33,7 @@ Expose authenticated `PUT /v1/config/delivery` and `GET /v1/config/delivery` end
 - **Container/GCP budget**: OCI images still come from Paketo Buildpacks, artifact repo `us-docker.pkg.dev/<project>/smart-letter`. Cloud Run stays in `us-central1`, 1 vCPU, 256 MiB, concurrency 20. Terraform state (`gs://smart-letter-terraform-state`) will record any env var additions. No Always Free overages expected (<100 writes/day, <10 KB storage per spec SC-006).
 - **Swagger UI exposure**: `/swagger-ui` continues to load the generated contract. Try-It-Out remains enabled only in staging/test with manual API key input. Production Try-It-Out stays disabled. Test plans include exercising both endpoints via Swagger with temporary API keys before code review.
 - **API key policy**: `X-SmartLetter-Api-Key` middleware enforces 32-byte entropy, constant-time comparison, rotation <=90 days, rate limits (30 writes/hr/key, 120 reads/hr/key). Controllers log hashed key IDs and map metadata to `updatedBy`. Secret Manager remains the source of keys.
-- **INVEST cadence**: Stories US1–US3 map to configuration update, read/audit, and observability slices. Each has independent acceptance criteria and tests, enabling incremental PRs. WIP limit remains two simultaneous stories.
+- **INVEST cadence**: Stories US1-US3 map to configuration update, read/audit, and observability slices. Each has independent acceptance criteria and tests, enabling incremental PRs. WIP limit remains two simultaneous stories.
 - **TDD/BDD plan**: Each story starts with failing unit + Cucumber tests: controller validation, service caching/locking, repository integrations, and `config_management.feature`. Commits will show red->green->refactor evidence (failing tests first, then implementation). No Spring Cloud Contract stubs are needed because the service has no new outbound HTTP calls.
 - **IaC readiness**: Terraform module `infra/cloudrun/main.tf` gets new env vars/secret references. `infra/firestore/app_settings.tf` seeds the `delivery` document stub. Plans (`terraform plan`) attach to PRs via GitHub Actions artifacts.
 - **Persistent settings**: `appSettings/configuration/delivery` schema, defaults, migration steps, cache TTL, and rollback instructions match the spec and are reiterated in `data-model.md`. Always Free quotas are respected with low write volume and emulator-based tests.
@@ -45,7 +46,7 @@ _Re-check after Phase 1 design confirms no guardrail violations; no waivers reco
 
 Repository layout remains unchanged. This feature adds documentation artifacts under `specs/001-email-config-endpoint/` (plan, research, data-model, quickstart, contracts) plus IaC references and does not introduce new source modules. Application code continues to follow the existing package structure under `src/main/java/com/smartletter/` (controllers in `api`, Firestore access in `settings`).
 
-## Phase 0 – Research
+## Phase 0 - Research
 
 Phase 0 resolved every NEEDS CLARIFICATION item through targeted research tasks; results live in [research.md](./research.md).
 
@@ -57,7 +58,7 @@ Phase 0 resolved every NEEDS CLARIFICATION item through targeted research tasks;
 
 Research deliverable structure (Decision, Rationale, Alternatives) is documented in `research.md`, ensuring reviewers can trace why each approach beat the alternatives.
 
-## Phase 1 – Design & Contracts
+## Phase 1 - Design & Contracts
 
 Artifacts created during Phase 1:
 
@@ -75,22 +76,22 @@ The script appended the new technology/context summary for Copilot, ensuring fut
 
 Post-design Constitution Check: All guardrails remain satisfied; no additional violations surfaced.
 
-## Phase 2 – Implementation Plan
+## Phase 2 - Implementation Plan
 
 Execution is sliced by user story to honor INVEST and incremental delivery:
 
-1. **US1 – Configure Delivery Target (P1)**
+1. **US1 - Configure Delivery Target (P1)**
 	- Controllers/DTOs: Scaffold `DeliveryConfigurationController.putConfig`, request/response records with validation annotations, and exception mapper for 409/422/503.
 	- Service/Repository: Implement `DeliveryConfigurationService.upsert` using Firestore transaction + version precondition, `promptSha256`, caching invalidation, and `updatedBy` metadata injection.
 	- Tests: Start with failing controller unit tests (validation, auth, 200 response), service tests for optimistic locking/caching, and Firestore emulator IT verifying atomic updates + rollback. Add Cucumber scenario `@US1-success`.
 	- Observability: Emit success/failure logs + metrics, verify via unit tests capturing MeterRegistry counters.
 
-2. **US2 – Audit Current Configuration (P2)**
+2. **US2 - Audit Current Configuration (P2)**
 	- Controller method: `DeliveryConfigurationController.getConfig` returning DTO with cache headers and `ETag` derived from `promptSha256` + `version`.
 	- Service layer: Read-through cache with TTL <=60s, 404 when document missing, 200 with metadata otherwise.
 	- Tests: Failing tests for 404, caching TTL behavior, ETag/Last-Modified headers, GET Cucumber scenario `@US2-not-found` and `@US2-success`.
 
-3. **US3 – Surface Metrics & Alerts (P3)**
+3. **US3 - Surface Metrics & Alerts (P3)**
 	- Metrics/logs: Add structured `ConfigurationAuditEvent`, unauthorized/validation failure counters, success duration histogram, and tie them into Cloud Monitoring alert definitions (IaC update referencing dashboards/alert policies).
 	- Testing: Unit tests verifying metrics increments, log redaction, and rate-limit enforcement; integration test simulating repeated unauthorized attempts. Document alert policies in `deployment.md` (future tasks).
 

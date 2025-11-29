@@ -1,4 +1,4 @@
-# Data Model – Recipient & Prompt Configuration API
+# Data Model - Recipient & Prompt Configuration API
 
 **Date**: 2025-11-23  
 **Branch**: `001-email-config-endpoint`
@@ -44,7 +44,7 @@
 
 ## Relationships & Flows
 
-1. `DeliveryConfigurationController.putConfig` → validates request → delegates to `DeliveryConfigurationService.upsert`.
+1. `DeliveryConfigurationController.putConfig` -> validates request -> delegates to `DeliveryConfigurationService.upsert`.
 2. Service loads `ApiKeyMetadata` from request attributes, enters Firestore transaction (via `DeliveryConfigurationRepository`), verifies `version`/`updateTime`, updates document, recomputes `promptSha256`, and invalidates DeliveryConfigurationCache.
 3. Successful write emits `ConfigurationAuditEvent`, increments `config.update.success`, and returns DTO with `version`, `updatedAt`, `updatedBy`, and response headers `ETag` (derived from `promptSha256` + `version`) and `Last-Modified` (`updatedAt`).
 4. `GET /v1/config/delivery` first checks DeliveryConfigurationCache. On cache hit, returns cached DTO with headers and logs a read audit event. On miss, reads Firestore once, refreshes cache, or returns 404 if the document is absent.
@@ -53,7 +53,7 @@
 ## Validation & State Transitions
 
 - **Initial State**: IaC seeds the document with `status=pending` placeholder or deletes collection entirely. First PUT must pass validation; service creates document with `version=1`.
-- **Update State**: Each successful PUT increments `version` and updates timestamps. If the provided `version` header (optional) does not match Firestore, service throws `ConfigVersionConflictException` → HTTP 409.
+- **Update State**: Each successful PUT increments `version` and updates timestamps. If the provided `version` header (optional) does not match Firestore, service throws `ConfigVersionConflictException` -> HTTP 409.
 - **Missing State**: GET returns 404 with error code `CONFIG_NOT_FOUND` if document is absent. This doubles as a deployment gate for downstream pipelines.
 - **Error Handling**: Validation failures never touch Firestore and log sanitized fields. Firestore 5xx errors bubble up as HTTP 503 with `Retry-After: 30` and emit `config.update.failure{reason=infra}`.
 

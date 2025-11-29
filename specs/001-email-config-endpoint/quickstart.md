@@ -1,4 +1,4 @@
-# Quickstart – Recipient & Prompt Configuration API
+# Quickstart - Recipient & Prompt Configuration API
 
 This guide shows how to exercise the configuration endpoints locally while honoring the Smart Letter constitution guardrails.
 

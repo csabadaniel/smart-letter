@@ -14,7 +14,7 @@
 
 - [ ] T001 Update `pom.xml` with Spring Cloud GCP Firestore starter, Micrometer meter-registry bindings, and SHA-256 utility dependency so config endpoints can compile.
 - [ ] T002 Add `delivery-config.collection-path`, `delivery-config.cache-ttl-seconds`, and API-key metadata placeholders to `src/main/resources/application.yml` plus document defaults/comments for every environment.
-- [ ] T003 Refresh `specs/001-email-config-endpoint/quickstart.md` to include Firestore emulator env exports, API key loading instructions, and ASCII-only verification steps from the latest plan.
+- [ ] T003 Refresh `specs/001-email-config-endpoint/quickstart.md` to include Firestore emulator env exports, API key loading instructions, ASCII-only verification steps, and the exact Spring Boot CLI scaffolding command mandated by Constitution v2.1.1.
 
 ---
 
@@ -32,7 +32,7 @@
 
 ---
 
-## Phase 3: User Story 1 – Configure Delivery Target (Priority: P1) :dart: MVP
+## Phase 3: User Story 1 - Configure Delivery Target (Priority: P1) :dart: MVP
 
 **Goal**: Allow ops admins to securely upsert the single recipient email and deterministic LLM prompt via `PUT /v1/config/delivery`.
 **Independent Test**: Using Swagger UI (with API key) to call the PUT endpoint should persist values in Firestore + cache, emit audit logs/metrics, and reflect the change immediately through a direct Firestore query without restarting the service.
@@ -55,7 +55,7 @@
 
 ---
 
-## Phase 4: User Story 2 – Audit Current Configuration (Priority: P2)
+## Phase 4: User Story 2 - Audit Current Configuration (Priority: P2)
 
 **Goal**: Provide `GET /v1/config/delivery` so the compliance team can read the latest configuration + audit metadata with cache/etag headers.
 **Independent Test**: Calling GET with API key returns 200 and headers after a prior PUT; calling GET before any PUT returns 404 `CONFIG_NOT_FOUND`, and both cases are covered by BDD + integration tests without invoking downstream pipelines.
@@ -70,13 +70,13 @@
 - [ ] T020 [US2] Implement `DeliveryConfigurationService.getConfiguration()` returning cached data, populating `ETag`/`Last-Modified`, and throwing typed exceptions when missing.
 - [ ] T021 [US2] Add `DeliveryConfigurationController.getConfig` with `@GetMapping`, cache-control headers, and API key auth in `src/main/java/com/smartletter/settings/api/`.
 - [ ] T022 [US2] Update `src/main/java/com/smartletter/settings/api/ApiErrorHandler.java` (or equivalent) to emit typed `CONFIG_NOT_FOUND` payloads and add header writers for ETag/Cache-Control.
-- [ ] T023 [US2] Document GET usage, cache semantics, and deployment gating steps in `docs/runbooks/config-governance.md`.
+- [ ] T023 [US2] Document GET usage, cache semantics, staging-vs-production Swagger Try-It-Out policy, and deployment gating steps in `docs/runbooks/config-governance.md`.
 
 **Checkpoint**: GET endpoint independently testable via Swagger and automated suites.
 
 ---
 
-## Phase 5: User Story 3 – Surface Metrics & Alerts (Priority: P3)
+## Phase 5: User Story 3 - Surface Metrics & Alerts (Priority: P3)
 
 **Goal**: Emit Micrometer metrics and structured logs for every config access/update and provision Cloud Monitoring alerts for misuse patterns.
 **Independent Test**: Automated tests generate success/failure/unauthorized events and assert counters/log payloads; Terraform plan shows new alert policies, and a chaos test proves unauthorized attempts trigger notifications within 1 minute.
@@ -102,7 +102,7 @@
 **Goal**: Harden documentation, deployment evidence, and manual validations before merge/deploy.
 **Independent Test**: Quickstart steps run cleanly on a fresh machine, ASCII/doc lint passes, Swagger UI validated in staging, and IaC/CI artifacts attached to PR.
 
-- [ ] T030 [P] Run quickstart flow end-to-end (tests, OpenAPI generation, Swagger UI manual PUT/GET) and capture evidence in `specs/001-email-config-endpoint/quickstart.md`.
+- [ ] T030 [P] Run quickstart flow end-to-end (tests, OpenAPI generation, staging Swagger UI manual PUT/GET with API key) and capture evidence in `specs/001-email-config-endpoint/quickstart.md` including the production Try-It-Out restriction.
 - [ ] T031 [P] Ensure `.github/workflows/ci.yml` and `deploy-prod.yml` include new test suites (`-Pfirestore-emulator`, observability tests) plus artifact uploads for OpenAPI + Terraform plan.
 - [ ] T032 Confirm ASCII-only documentation by running `./scripts/ascii-scan.sh specs/001-email-config-endpoint` and update `docs/RELEASE_NOTES.md` with pointers to CI runs, Terraform plan, and alert policy diffs.
 
@@ -118,12 +118,12 @@
 
 ## Parallel Execution Examples
 
-- **US1**: One engineer owns BDD + controller tests (T010–T011) while another implements repository/service logic (T012–T014). Metrics/log instrumentation (T016) can run in parallel once service signatures stabilize.
-- **US2**: While T018 (BDD) runs, another engineer completes service cache tests (T019) and implementation tasks T020–T022 concurrently because they touch different classes (service vs. controller) yet rely on the same DTOs.
-- **US3**: Terraform alert work (T028) proceeds independently of code-level logging tasks (T026–T027); both unblock only when Micrometer metric names are finalized from US1 research.
+- **US1**: One engineer owns BDD + controller tests (T010-T011) while another implements repository/service logic (T012-T014). Metrics/log instrumentation (T016) can run in parallel once service signatures stabilize.
+- **US2**: While T018 (BDD) runs, another engineer completes service cache tests (T019) and implementation tasks T020-T022 concurrently because they touch different classes (service vs. controller) yet rely on the same DTOs.
+- **US3**: Terraform alert work (T028) proceeds independently of code-level logging tasks (T026-T027); both unblock only when Micrometer metric names are finalized from US1 research.
 
 ## Implementation Strategy
 
-1. **MVP First**: Finish Phases 1–2, deliver US1 entirely (tests + PUT endpoint), and demo via Swagger UI/CI artifacts.
+1. **MVP First**: Finish Phases 1-2, deliver US1 entirely (tests + PUT endpoint), and demo via Swagger UI/CI artifacts.
 2. **Incremental Delivery**: Ship US2 next (read visibility) so downstream teams can verify deployment gates; then US3 adds observability/alerts without touching path-critical code.
 3. **Parallel Teams**: After foundational work, allocate devs per user story as outlined in the parallel examples to minimize idle time while keeping INVEST slices independently testable.
