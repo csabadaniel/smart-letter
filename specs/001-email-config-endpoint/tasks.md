@@ -1,130 +1,143 @@
 # Tasks: Recipient & Prompt Configuration API
 
 **Input**: plan.md, spec.md, research.md, data-model.md, contracts/, quickstart.md under `specs/001-email-config-endpoint/`
-**Prerequisites**: Constitution guardrails (code-first OpenAPI, LLM safety, ASCII docs) remain in force for every task
+**Prerequisites**: Constitution guardrails (Spring Initializr scaffold, code-first OpenAPI, LLM/email safety, ASCII-only docs) apply to every task.
 
-**Tests**: Each user story begins with failing Cucumber + automated tests (JUnit/AssertJ + Testcontainers) before implementation per Principle IV.
+**Tests**: Each user story begins with failing Cucumber + automated tests (JUnit/AssertJ + Testcontainers) before implementation per Principle IV; do not skip tests unless the spec documents an approved exception.
 
-**Format reminder**: `- [ ] T### [P] [US#] Description with file path`
+**Format reminder**: `- [ ] T### [P?] [US#?] Description with file path`
+	- Include `[P]` only when the task is parallelizable (independent files/no deps)
+	- Include `[US#]` only for user-story phases (omit during Setup/Foundational/Polish)
+
+**Numbering guide**: Task IDs are contiguous and scoped per phase to avoid ambiguity:
+- Phase 1 uses T001-T004
+- Phase 2 uses T005-T010
+- Phase 3 (US1) uses T011-T019
+- Phase 4 (US2) uses T020-T025
+- Phase 5 (US3) uses T026-T031
+- Polish phase uses T032-T034
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-**Goal**: Ensure the repo has the dependencies, config surface, and documentation hooks needed before feature work begins.
-**Readiness Test**: `./mvnw --version`, `./mvnw clean verify -Pfirestore-emulator` and `./scripts/ascii-scan.sh specs/001-email-config-endpoint` all succeed without code changes.
+**Purpose**: Re-establish the Spring Initializr scaffold, dependency graph, and documentation so later phases can compile and run.
+**Readiness Test**: `./mvnw --version`, `./mvnw clean verify -Pfirestore-emulator`, and `./scripts/ascii-scan.sh specs/001-email-config-endpoint` succeed on a clean clone without additional edits.
 
-- [ ] T000 Verify the Spring Initializr scaffold exists (re-run `curl https://start.spring.io/starter.zip -d dependencies=web,validation,data-firestore,actuator -d javaVersion=21 -d language=java -d type=maven-project -d packageName=com.smartletter -o smart-letter.zip` and extract if missing) before continuing with Phase 1 setup.
-- [ ] T001 Update `pom.xml` with Spring Cloud GCP Firestore starter, Micrometer meter-registry bindings, and SHA-256 utility dependency so config endpoints can compile.
-- [ ] T002 Add `delivery-config.collection-path`, `delivery-config.cache-ttl-seconds`, and API-key metadata placeholders to `src/main/resources/application.yml` plus document defaults/comments for every environment.
-- [ ] T003 Refresh `specs/001-email-config-endpoint/quickstart.md` to include Firestore emulator env exports, API key loading instructions, ASCII-only verification steps, and the exact Spring Initializr configuration mandated by Constitution v2.2.0.
+- [ ] T001 Verify the Spring Initializr scaffold exists at repo root (`./pom.xml`, `./mvnw`, `./.mvn/`, `./src/`) and rerun `curl https://start.spring.io/starter.zip -d dependencies=web,validation,data-firestore,actuator -d javaVersion=21 -d language=java -d type=maven-project -d packageName=com.smartletter -o smart-letter.zip` + unzip if any generated files are missing.
+- [ ] T002 Update `pom.xml` to include Spring Web, Validation, Actuator, Spring Cloud GCP Firestore, Micrometer (Prometheus + logging), Springdoc OpenAPI, SHA-256 utility, and the `springdoc-openapi-maven-plugin` so PUT/GET endpoints compile and contracts regenerate.
+- [ ] T003 Add `delivery-config.collection-path`, `delivery-config.cache-ttl-seconds`, and API-key metadata placeholders (with comments for local/test/prod) to `src/main/resources/application.yml` so configuration values have explicit defaults.
+- [ ] T004 Refresh `specs/001-email-config-endpoint/quickstart.md` with the mandated Spring Initializr command, Firestore emulator env exports, API key loading guidance, and ASCII verification steps.
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Goal**: Establish configuration properties, Firestore access, caching, and IaC hooks required by all stories.
-**Readiness Test**: A skeleton service can read/write the Firestore document via emulator using `DeliveryConfigurationRepository` and exposes bounded cache TTL before any endpoint logic exists.
+**Purpose**: Provide shared configuration bindings, Firestore access, caching, and IaC plumbing required by every user story.
+**Readiness Test**: `DeliveryConfigurationRepository` can read/write the Firestore document via emulator, cache TTL enforcement works, and Terraform plans show seeded config + env vars before any controller exists.
 
-- [ ] T004 Create `src/main/java/com/smartletter/settings/config/DeliveryConfigurationProperties.java` with `@ConfigurationProperties` binding for collection path, cache TTL, and rate-limit knobs; register it via `@EnableConfigurationProperties`.
-- [ ] T005 Implement `src/main/java/com/smartletter/security/ApiKeyMetadataResolver.java` that pulls `ApiKeyMetadata` from the authentication filter and exposes it through a `HandlerMethodArgumentResolver` for controllers/tests.
-- [ ] T006 Build `src/main/java/com/smartletter/settings/firestore/DeliveryConfigurationRepository.java` using the Firestore SDK with transactional `upsert` and `find` methods plus emulator configuration awareness.
-- [ ] T007 Add `src/main/java/com/smartletter/settings/cache/DeliveryConfigurationCache.java` (and supporting config) implementing 60-second TTL caching with explicit `invalidate()` hooks.
-- [ ] T008 Introduce `src/test/java/com/smartletter/support/firestore/FirestoreEmulatorTestBase.java` that boots Testcontainers emulator, seeds JSON fixtures, and tears down collections for reuse across repository/service tests.
-- [ ] T009 Update IaC: modify `infra/firestore/app_settings.tf` to seed the `appSettings/configuration/delivery` stub and `infra/cloudrun/main.tf` to pass the new env vars, then capture/attach the resulting `terraform plan` artifact.
+- [ ] T005 Create `src/main/java/com/smartletter/settings/config/DeliveryConfigurationProperties.java` (plus register via `SmartLetterApplication`) to bind collection path, cache TTL, and rate-limit knobs defined in `application.yml`.
+- [ ] T006 Implement `src/main/java/com/smartletter/security/ApiKeyMetadataResolver.java` and supporting `HandlerMethodArgumentResolver` that exposes `ApiKeyMetadata` from the API key filter to controllers/tests.
+- [ ] T007 Build `src/main/java/com/smartletter/settings/firestore/DeliveryConfigurationRepository.java` using Firestore transactions with `FieldValue.increment(1)`, `promptSha256`, and emulator awareness.
+- [ ] T008 Create `src/main/java/com/smartletter/settings/cache/DeliveryConfigurationCache.java` encapsulating 60-second TTL storage, `ETag` derivation, and explicit `invalidate()` hooks triggered after writes.
+- [ ] T009 Add `src/test/java/com/smartletter/support/firestore/FirestoreEmulatorTestBase.java` that spins up the Testcontainers emulator, seeds JSON fixtures, and cleans collections for repository/service tests.
+- [ ] T010 Update `infra/firestore/app_settings.tf` (seed `appSettings/configuration/delivery`) and `infra/cloudrun/main.tf` (pass delivery-config env vars/secrets), then capture the plan artifact referenced in PR checklists.
 
 ---
 
 ## Phase 3: User Story 1 - Configure Delivery Target (Priority: P1) :dart: MVP
 
-**Goal**: Allow ops admins to securely upsert the single recipient email and deterministic LLM prompt via `PUT /v1/config/delivery`.
-**Independent Test**: Using Swagger UI (with API key) to call the PUT endpoint should persist values in Firestore + cache, emit audit logs/metrics, and reflect the change immediately through a direct Firestore query without restarting the service.
+**Goal**: Enable ops admins to upsert the single recipient email + deterministic LLM prompt via authenticated `PUT /v1/config/delivery`, enforcing validation, optimistic locking, caching invalidation, and observability.
+**Independent Test**: Using Swagger UI (with API key) to call PUT should persist Firestore data + metadata, increment metrics/logs, invalidate cache, and be verifiable via direct Firestore query without restarting the service.
 
 ### Tests (fail first)
 
-- [ ] T010 [P] [US1] Expand `src/test/resources/features/configuration/config_management.feature` with `@US1-success`, `@US1-validation-error`, and `@US1-conflict` scenarios describing PUT flows.
-- [ ] T011 [P] [US1] Add `DeliveryConfigurationControllerTest` in `src/test/java/com/smartletter/settings/api/` covering validation, API key auth requirement, and HTTP 200/422/409 mappings.
-- [ ] T012 [P] [US1] Create `DeliveryConfigurationRepositoryIT` in `src/test/java/com/smartletter/settings/firestore/` exercising optimistic locking, transaction rollback, and prompt hashing against the emulator.
+- [ ] T011 [P] [US1] Expand `src/test/resources/features/configuration/config_management.feature` with `@US1-success`, `@US1-validation-error`, and `@US1-conflict` scenarios plus glue under `src/test/java/com/smartletter/bdd/configuration/`.
+- [ ] T012 [P] [US1] Add `DeliveryConfigurationControllerPutTest` in `src/test/java/com/smartletter/settings/api/` covering validation, auth, 200/201/409/422 mappings, and audit header assertions via MockMvc.
+- [ ] T013 [P] [US1] Create `DeliveryConfigurationServiceUpsertIT` in `src/test/java/com/smartletter/settings/service/` exercising Firestore transaction rollback, version incrementing, cache invalidation, and prompt hashing via the emulator base.
 
 ### Implementation
 
-- [ ] T013 [US1] Implement DTOs `DeliveryConfigurationRequest`/`DeliveryConfigurationResponse` with `jakarta.validation` + Springdoc annotations in `src/main/java/com/smartletter/settings/api/`.
-- [ ] T014 [US1] Implement `DeliveryConfigurationService.upsert` in `src/main/java/com/smartletter/settings/service/` to run Firestore transaction, compute `promptSha256`, populate `updatedBy`, invalidate cache, and return the response model.
-- [ ] T015 [US1] Implement `DeliveryConfigurationController.putConfig` in `src/main/java/com/smartletter/settings/api/` using the argument resolver, mapping exceptions to `ApiErrorHandler`, and wiring metrics/log calls.
-- [ ] T016 [P] [US1] Instrument Micrometer counters/histogram plus `ConfigurationAuditEvent` structured logging in `src/main/java/com/smartletter/settings/observability/ConfigUpdateMetrics.java`.
-- [ ] T017 [US1] Regenerate and commit `docs/contracts/openapi.yaml` via `./mvnw springdoc-openapi:generate`, ensuring PUT schema + examples match controller annotations.
+- [ ] T014 [US1] Implement `DeliveryConfigurationRequest`/`DeliveryConfigurationResponse` records with `jakarta.validation` + Springdoc annotations in `src/main/java/com/smartletter/settings/api/` including example values + descriptions.
+- [ ] T015 [US1] Implement `DeliveryConfigurationService.upsert` in `src/main/java/com/smartletter/settings/service/DeliveryConfigurationService.java` to run Firestore transaction, compute `promptSha256`, set `updatedBy/updatedAt/version`, and invalidate the cache.
+- [ ] T016 [US1] Implement `DeliveryConfigurationController.putConfig` in `src/main/java/com/smartletter/settings/api/DeliveryConfigurationController.java` using the argument resolver, mapping domain exceptions to `ApiErrorHandler`, and returning response headers.
+- [ ] T017 [P] [US1] Add `src/main/java/com/smartletter/settings/observability/ConfigUpdateMetrics.java` (Micrometer counters/histogram) plus `ConfigurationAuditEvent` logging to emit sanitized success/failure entries.
+- [ ] T018 [US1] Regenerate `docs/contracts/openapi.yaml` via `./mvnw springdoc-openapi:generate`, review diff vs. `specs/001-email-config-endpoint/contracts/openapi.yaml`, and commit the updated artifact.
+- [ ] T019 [US1] Document PUT-specific runbook steps (optimistic locking guidance, sample payloads, error codes) in `docs/runbooks/config-governance.md`.
 
-**Checkpoint**: Swagger UI PUT succeeds end-to-end using emulator; all US1 tests green.
+**Checkpoint**: PUT endpoint passes automated suites and manual Swagger validation; metrics/log entries visible locally.
 
 ---
 
 ## Phase 4: User Story 2 - Audit Current Configuration (Priority: P2)
 
-**Goal**: Provide `GET /v1/config/delivery` so the compliance team can read the latest configuration + audit metadata with cache/etag headers.
-**Independent Test**: Calling GET with API key returns 200 and headers after a prior PUT; calling GET before any PUT returns 404 `CONFIG_NOT_FOUND`, and both cases are covered by BDD + integration tests without invoking downstream pipelines.
+**Goal**: Provide authenticated `GET /v1/config/delivery` returning the latest configuration, audit metadata, and cache headers while handling missing configs gracefully.
+**Independent Test**: Calling GET after a PUT returns 200 with DTO + `ETag`/`Last-Modified` headers; calling GET before any PUT returns 404 `CONFIG_NOT_FOUND`, all verified via BDD + integration tests without invoking downstream flows.
 
 ### Tests (fail first)
 
-- [ ] T018 [P] [US2] Extend `src/test/resources/features/configuration/config_management.feature` with `@US2-success` and `@US2-not-found` scenarios covering GET flows.
-- [ ] T019 [P] [US2] Add `DeliveryConfigurationServiceTest` in `src/test/java/com/smartletter/settings/service/` verifying cache TTL, ETag derivation, and 404 handling via emulator fakes.
+- [ ] T020 [P] [US2] Extend `config_management.feature` with `@US2-success` and `@US2-not-found` scenarios plus glue for cache-header assertions in `src/test/java/com/smartletter/bdd/configuration/`.
+- [ ] T021 [P] [US2] Add `DeliveryConfigurationServiceCacheTest` in `src/test/java/com/smartletter/settings/service/` verifying 60s TTL, `ETag` derivation (`version` + `promptSha256`), and 404 exception semantics.
 
 ### Implementation
 
-- [ ] T020 [US2] Implement `DeliveryConfigurationService.getConfiguration()` returning cached data, populating `ETag`/`Last-Modified`, and throwing typed exceptions when missing.
-- [ ] T021 [US2] Add `DeliveryConfigurationController.getConfig` with `@GetMapping`, cache-control headers, and API key auth in `src/main/java/com/smartletter/settings/api/`.
-- [ ] T022 [US2] Update `src/main/java/com/smartletter/settings/api/ApiErrorHandler.java` (or equivalent) to emit typed `CONFIG_NOT_FOUND` payloads and add header writers for ETag/Cache-Control.
-- [ ] T023 [US2] Document GET usage, cache semantics, staging-vs-production Swagger Try-It-Out policy, and deployment gating steps in `docs/runbooks/config-governance.md`.
+- [ ] T022 [US2] Implement `DeliveryConfigurationService.getConfiguration` in `src/main/java/com/smartletter/settings/service/DeliveryConfigurationService.java` to serve cache hits, refresh on miss, and throw typed exception when Firestore lacks the document.
+- [ ] T023 [US2] Implement `DeliveryConfigurationController.getConfig` in `src/main/java/com/smartletter/settings/api/DeliveryConfigurationController.java` adding cache-control headers, `ETag`, and API key enforcement.
+- [ ] T024 [US2] Update `src/main/java/com/smartletter/settings/api/ApiErrorHandler.java` (or equivalent) to emit `CONFIG_NOT_FOUND` payloads with RFC7807 details and to set cache headers on successful responses.
+- [ ] T025 [US2] Capture GET usage, cache semantics, staging vs. production Swagger Try-It-Out rules, and deployment gating steps in `docs/runbooks/config-governance.md`.
 
-**Checkpoint**: GET endpoint independently testable via Swagger and automated suites.
+**Checkpoint**: GET endpoint independently testable via automated suites + Swagger UI, including 404 behavior.
 
 ---
 
 ## Phase 5: User Story 3 - Surface Metrics & Alerts (Priority: P3)
 
-**Goal**: Emit Micrometer metrics and structured logs for every config access/update and provision Cloud Monitoring alerts for misuse patterns.
-**Independent Test**: Automated tests generate success/failure/unauthorized events and assert counters/log payloads; Terraform plan shows new alert policies, and a chaos test proves unauthorized attempts trigger notifications within 1 minute.
+**Goal**: Emit Micrometer counters/histograms and structured logs for every config access/update and wire Cloud Monitoring alert policies for misuse patterns.
+**Independent Test**: Automated tests drive success/failure/unauthorized paths, assert metrics/log payloads, and Terraform plan shows the new alert policies; chaos test proves unauthorized bursts trigger notifications within 1 minute.
 
 ### Tests (fail first)
 
-- [ ] T024 [P] [US3] Add `@US3-observability` scenarios to `src/test/resources/features/configuration/config_management.feature` covering unauthorized bursts and expected alerts.
-- [ ] T025 [P] [US3] Implement `ConfigUpdateMetricsTest` in `src/test/java/com/smartletter/settings/observability/` asserting counter/histogram labels and log redaction.
+- [ ] T026 [P] [US3] Add `@US3-observability` scenarios to `config_management.feature` plus glue verifying metric increments/log redaction in `src/test/java/com/smartletter/bdd/configuration/`.
+- [ ] T027 [P] [US3] Implement `ConfigUpdateMetricsTest` in `src/test/java/com/smartletter/settings/observability/` asserting counter, histogram, and unauthorized rate-limit gauges populate correct labels.
 
 ### Implementation
 
-- [ ] T026 [US3] Implement `ConfigurationAuditEvent` + log writer in `src/main/java/com/smartletter/settings/observability/` ensuring prompt hashes (not plaintext) and correlation IDs.
-- [ ] T027 [US3] Wire Micrometer counters, histogram, and rate-limit gauges into controller/service layers plus expose them via `/actuator/prometheus`.
-- [ ] T028 [US3] Update `infra/monitoring/config.tf` to create Cloud Monitoring alert policies for `config.update.failure` (>3/min) and `config.update.unauthorized` (>5/min) with Slack/webhook notifications.
-- [ ] T029 [US3] Add runbook entries in `docs/runbooks/alerts.md` describing alert meaning, suppression procedure, and validation steps for chaos testing.
+- [ ] T028 [US3] Finalize `src/main/java/com/smartletter/settings/observability/ConfigurationAuditEvent.java` (or similar) to publish structured logs with hashed actors, prompt hashes, and correlation IDs.
+- [ ] T029 [US3] Wire Micrometer counters/histograms plus unauthorized rate-limit gauges into controller/service layers and expose via `/actuator/prometheus` by updating `src/main/java/com/smartletter/settings/observability/ConfigUpdateMetrics.java`.
+- [ ] T030 [US3] Update `infra/monitoring/config.tf` to add Cloud Monitoring alert policies for `config.update.failure` (>3/min) and `config.update.unauthorized` (>5/min) with Slack/webhook notifications and Terraform outputs documenting targets.
+- [ ] T031 [US3] Extend `docs/runbooks/alerts.md` with alert meanings, suppression workflow, and chaos-test validation steps referencing metrics/log IDs.
 
-**Checkpoint**: Metrics/logs visible locally and alert Terraform plan reviewed.
+**Checkpoint**: Metrics/logs observable locally and alert Terraform plan reviewed/attached to PR evidence.
 
 ---
 
 ## Final Phase: Polish & Cross-Cutting
 
-**Goal**: Harden documentation, deployment evidence, and manual validations before merge/deploy.
-**Independent Test**: Quickstart steps run cleanly on a fresh machine, ASCII/doc lint passes, Swagger UI validated in staging, and IaC/CI artifacts attached to PR.
+**Purpose**: Validate documentation, CI/CD automation, and ASCII compliance before requesting review/deploy.
+**Independent Test**: Quickstart steps succeed on a fresh machine, ASCII/doc lint passes, Swagger UI validated in staging, and CI artifacts (OpenAPI, Terraform plan, emulator logs) are attached to the PR.
 
-- [ ] T030 [P] Run quickstart flow end-to-end (tests, OpenAPI generation, staging Swagger UI manual PUT/GET with API key) and capture evidence in `specs/001-email-config-endpoint/quickstart.md` including the production Try-It-Out restriction.
-- [ ] T031 [P] Ensure `.github/workflows/ci.yml` and `deploy-prod.yml` include new test suites (`-Pfirestore-emulator`, observability tests) plus artifact uploads for OpenAPI + Terraform plan.
-- [ ] T032 Confirm ASCII-only documentation by running `./scripts/ascii-scan.sh specs/001-email-config-endpoint` and update `docs/RELEASE_NOTES.md` with pointers to CI runs, Terraform plan, and alert policy diffs.
+- [ ] T032 [P] Run the quickstart flow end-to-end (tests, OpenAPI generation, Swagger PUT/GET via API key) and capture screenshots/notes in `specs/001-email-config-endpoint/quickstart.md`, including production Try-It-Out restrictions.
+- [ ] T033 [P] Ensure `.github/workflows/ci.yml` and `.github/workflows/deploy-prod.yml` include new suites (`-Pfirestore-emulator`, observability tests), artifact uploads (OpenAPI, Terraform plan, Cucumber report), and required approvals for production deploys.
+- [ ] T034 Run `./scripts/ascii-scan.sh specs/001-email-config-endpoint` and update `docs/RELEASE_NOTES.md` with links to CI runs, Terraform plan artifacts, and alert policy diffs.
 
 ---
 
 ## Dependencies & Execution Order
 
-- **Phase 1** must finish before Foundation because dependencies/config placeholders are required by all later work.
-- **Phase 2** blocks every user story; repository, cache, argument resolver, and IaC wiring are prerequisites.
-- **US1 (P1)** delivers the MVP and must finish before US2/US3 rely on persisted values, but once US1 code skeleton exists, US2 can start on the GET path while US1 tests still run.
-- **US3** depends on metrics/log hooks introduced in US1/US2 but can start in parallel once those code branches exist (e.g., after controller/service scaffolding lands).
-- **Polish** runs after all desired stories are completed.
+- Phase 1 (Setup) must complete before Phase 2 because later work depends on the regenerated scaffold, dependencies, and documented quickstart.
+- Phase 2 (Foundational) blocks all user stories; repository, cache, argument resolver, and IaC wiring are prerequisites for every endpoint.
+- User Story 1 (US1, P1) delivers the MVP and must finish before US2 and US3 rely on persisted values, but once DTO/service contracts stabilize, US2 testing can begin in parallel.
+- User Story 2 (US2, P2) depends on the cache/service logic introduced in US1 but remains independently testable; completion unlocks observability work that needs GET hooks.
+- User Story 3 (US3, P3) depends on the metrics/log points added in US1/US2 plus Terraform scaffolding; alert IaC can run after those hooks exist.
+- Polish phase runs after targeted user stories are complete to capture manual validation, CI updates, and ASCII checks.
 
 ## Parallel Execution Examples
 
-- **US1**: One engineer owns BDD + controller tests (T010-T011) while another implements repository/service logic (T012-T014). Metrics/log instrumentation (T016) can run in parallel once service signatures stabilize.
-- **US2**: While T018 (BDD) runs, another engineer completes service cache tests (T019) and implementation tasks T020-T022 concurrently because they touch different classes (service vs. controller) yet rely on the same DTOs.
-- **US3**: Terraform alert work (T028) proceeds independently of code-level logging tasks (T026-T027); both unblock only when Micrometer metric names are finalized from US1 research.
+- **US1**: One engineer can own BDD + controller tests (T011-T012) while another builds repository/service integration (T013-T015); observability instrumentation (T017) proceeds in parallel after service signatures stabilize.
+- **US2**: While T020 expands BDD scenarios, another engineer can implement service/controller changes (T022-T023) and error handling (T024); documentation (T025) finalizes once responses are stable.
+- **US3**: Terraform alert work (T030) proceeds independently of code-level logging/metric tasks (T028-T029), while BDD + observability tests (T026-T027) validate behavior concurrently.
 
 ## Implementation Strategy
 
-1. **MVP First**: Finish Phases 1-2, deliver US1 entirely (tests + PUT endpoint), and demo via Swagger UI/CI artifacts.
-2. **Incremental Delivery**: Ship US2 next (read visibility) so downstream teams can verify deployment gates; then US3 adds observability/alerts without touching path-critical code.
-3. **Parallel Teams**: After foundational work, allocate devs per user story as outlined in the parallel examples to minimize idle time while keeping INVEST slices independently testable.
+1. **MVP First**: Complete Phases 1-2, then finish US1 (tests + PUT endpoint) to unlock basic configuration management and demo via Swagger UI and CI artifacts.
+2. **Incremental Delivery**: Layer US2 to provide read visibility and deployment gating evidence before addressing observability; ensure each story is independently testable before moving on.
+3. **Parallel Teams**: After foundational work, assign engineers per user story as shown above to maintain low WIP while still shipping INVEST-compliant slices; keep Terraform/doc tasks in lockstep with code changes so audits pass.
+```
