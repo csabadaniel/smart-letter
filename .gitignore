@@ -31,3 +31,10 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Universal noise
+.DS_Store
+Thumbs.db
+*.log
+.env
+.env.*

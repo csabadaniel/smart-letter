@@ -34,7 +34,7 @@
 **Purpose**: Provide shared configuration bindings, Firestore access, caching, and IaC plumbing required by every user story.
 **Readiness Test**: `DeliveryConfigurationRepository` can read/write the Firestore document via emulator, cache TTL enforcement works, and Terraform plans show seeded config + env vars before any controller exists.
 
-- [ ] T005 Create `src/main/java/com/smartletter/settings/config/DeliveryConfigurationProperties.java` (plus register via `SmartLetterApplication`) to bind collection path, cache TTL, and rate-limit knobs defined in `application.yml`.
+- [x] T005 Create `src/main/java/com/smartletter/settings/config/DeliveryConfigurationProperties.java` (plus register via `SmartLetterApplication`) to bind collection path, cache TTL, and rate-limit knobs defined in `application.yml`.
 - [ ] T006 Implement `src/main/java/com/smartletter/security/ApiKeyMetadataResolver.java` and supporting `HandlerMethodArgumentResolver` that exposes `ApiKeyMetadata` from the API key filter to controllers/tests.
 - [ ] T007 Build `src/main/java/com/smartletter/settings/firestore/DeliveryConfigurationRepository.java` using Firestore transactions with `FieldValue.increment(1)`, `promptSha256`, and emulator awareness.
 - [ ] T008 Create `src/main/java/com/smartletter/settings/cache/DeliveryConfigurationCache.java` encapsulating 60-second TTL storage, `ETag` derivation, and explicit `invalidate()` hooks triggered after writes.

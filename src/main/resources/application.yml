@@ -12,6 +12,11 @@ delivery-config:
   collection-path: ${DELIVERY_CONFIG_COLLECTION_PATH:appSettings/configuration/delivery}
   # Cache TTL (seconds) mirrored by DeliveryConfigurationCache and controller cache headers
   cache-ttl-seconds: ${DELIVERY_CONFIG_CACHE_TTL_SECONDS:60}
+  rate-limit:
+    # Maximum allowed write attempts per API key per hour before rate-limiting kicks in
+    writes-per-hour: ${DELIVERY_CONFIG_RATE_LIMIT_WRITES_PER_HOUR:30}
+    # Maximum allowed read attempts per API key per hour before rate-limiting kicks in
+    reads-per-hour: ${DELIVERY_CONFIG_RATE_LIMIT_READS_PER_HOUR:120}
 
 smartletter:
   api-key:
