@@ -40,9 +40,11 @@ set -a
 source .env.local
 set +a
 ```
-Never commit `.env.local`; rotate keys via Secret Manager when collaborating.
-
-## 3. Install Dependencies
+**Security warning:**  
+- Do **not** run the above commands in shared or multi-user terminal sessions, as environment variables may be visible to other users or processes.  
+- Before storing sensitive credentials, ensure `.env.local` is listed in your `.gitignore` file to prevent accidental commits. You can add it with:
+  ```bash
+  echo ".env.local" >> .gitignore
 ```bash
 cd /Users/csaba.daniel/vscode-projects/smart-letter
 ./mvnw --version
