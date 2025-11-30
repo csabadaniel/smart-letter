@@ -1,0 +1,10 @@
+{
+  "path": "appSettings/configuration/delivery",
+  "data": {
+    "recipientEmail": "ops@example.com",
+    "llmPrompt": "Seeded prompt for tests",
+    "promptSha256": "9561b94cb786c7b5834e01649ffe362d49c69abf5be768456d6f17707c53ef98",
+    "updatedBy": "ops:local",
+    "version": 1
+  }
+}

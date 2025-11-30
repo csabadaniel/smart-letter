@@ -38,7 +38,7 @@
 - [x] T006 Implement `src/main/java/com/smartletter/security/ApiKeyMetadataResolver.java` and supporting `HandlerMethodArgumentResolver` that exposes `ApiKeyMetadata` from the API key filter to controllers/tests.
 - [x] T007 Build `src/main/java/com/smartletter/settings/firestore/DeliveryConfigurationRepository.java` using Firestore transactions with `FieldValue.increment(1)`, `promptSha256`, and emulator awareness.
 - [x] T008 Create `src/main/java/com/smartletter/settings/cache/DeliveryConfigurationCache.java` encapsulating 60-second TTL storage, `ETag` derivation, and explicit `invalidate()` hooks triggered after writes.
-- [ ] T009 Add `src/test/java/com/smartletter/support/firestore/FirestoreEmulatorTestBase.java` that spins up the Testcontainers emulator, seeds JSON fixtures, and cleans collections for repository/service tests.
+- [x] T009 Add `src/test/java/com/smartletter/support/firestore/FirestoreEmulatorTestBase.java` that spins up the Testcontainers emulator, seeds JSON fixtures, and cleans collections for repository/service tests.
 - [ ] T010 Update `infra/firestore/app_settings.tf` (seed `appSettings/configuration/delivery`) and `infra/cloudrun/main.tf` (pass delivery-config env vars/secrets), capturing the Terraform plan artifact referenced in PR checklists.
 - [ ] T011 Author/update `.github/workflows/ci.yml` and `.github/workflows/deploy-prod.yml` so every branch push runs the full quality gate (`-Pfirestore-emulator`, BDD, contracts, Terraform plan, container build + scan) plus deploys to the test environment, while merges to `main` rerun gates, deploy to production, and publish annotated SemVer tags with required approvals.
 
