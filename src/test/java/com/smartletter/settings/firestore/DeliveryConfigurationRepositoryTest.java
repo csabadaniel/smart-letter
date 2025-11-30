@@ -30,7 +30,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class DeliveryConfigurationRepositoryTest {
 
-    private static final String DOCUMENT_PATH = "appSettings/configuration/delivery";
+    private static final String DOCUMENT_PATH = "appSettings/configuration/delivery/main";
 
     @Mock
     private Firestore firestore;

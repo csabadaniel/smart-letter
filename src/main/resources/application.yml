@@ -9,7 +9,7 @@ spring:
 
 delivery-config:
   # Firestore document path storing the single recipient + prompt configuration
-  collection-path: ${DELIVERY_CONFIG_COLLECTION_PATH:appSettings/configuration/delivery}
+  collection-path: ${DELIVERY_CONFIG_COLLECTION_PATH:appSettings/configuration/delivery/main}
   # Cache TTL (seconds) mirrored by DeliveryConfigurationCache and controller cache headers
   cache-ttl-seconds: ${DELIVERY_CONFIG_CACHE_TTL_SECONDS:60}
   rate-limit:

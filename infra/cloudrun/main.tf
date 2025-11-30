@@ -45,7 +45,7 @@ variable "container_image" {
 variable "delivery_config_collection_path" {
   description = "Firestore path for the delivery configuration document"
   type        = string
-  default     = "appSettings/configuration/delivery"
+  default     = "appSettings/configuration/delivery/main"
 }
 
 variable "delivery_config_cache_ttl_seconds" {

@@ -18,7 +18,7 @@ class DeliveryConfigurationPropertiesTest {
     void bindsExplicitPropertyValues() {
         contextRunner
                 .withPropertyValues(
-                        "delivery-config.collection-path=appSettings/configuration/delivery",
+                        "delivery-config.collection-path=appSettings/configuration/delivery/main",
                         "delivery-config.cache-ttl-seconds=42",
                         "delivery-config.rate-limit.writes-per-hour=10",
                         "delivery-config.rate-limit.reads-per-hour=20")
@@ -26,7 +26,7 @@ class DeliveryConfigurationPropertiesTest {
                     DeliveryConfigurationProperties properties = context
                             .getBean(DeliveryConfigurationProperties.class);
 
-                    assertThat(properties.getCollectionPath()).isEqualTo("appSettings/configuration/delivery");
+                    assertThat(properties.getCollectionPath()).isEqualTo("appSettings/configuration/delivery/main");
                     assertThat(properties.getCacheTtlSeconds()).isEqualTo(42);
                     assertThat(properties.getRateLimit().getWritesPerHour()).isEqualTo(10);
                     assertThat(properties.getRateLimit().getReadsPerHour()).isEqualTo(20);
@@ -36,11 +36,11 @@ class DeliveryConfigurationPropertiesTest {
     @Test
     void usesDocumentedDefaultsWhenNotOverridden() {
         contextRunner
-                .withPropertyValues("delivery-config.collection-path=appSettings/configuration/delivery")
+                .withPropertyValues("delivery-config.collection-path=appSettings/configuration/delivery/main")
                 .run(context -> {
             DeliveryConfigurationProperties properties = context.getBean(DeliveryConfigurationProperties.class);
 
-            assertThat(properties.getCollectionPath()).isEqualTo("appSettings/configuration/delivery");
+            assertThat(properties.getCollectionPath()).isEqualTo("appSettings/configuration/delivery/main");
             assertThat(properties.getCacheTtlSeconds()).isEqualTo(60);
             assertThat(properties.getRateLimit().getWritesPerHour()).isEqualTo(30);
             assertThat(properties.getRateLimit().getReadsPerHour()).isEqualTo(120);

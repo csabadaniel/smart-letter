@@ -9,7 +9,7 @@ This directory now tracks Terraform modules for Firestore seeding and Cloud Run 
 4. Plan and capture an artifact for the PR: `terraform plan -out=../../artifacts/firestore.plan`.
 5. Apply in the appropriate environment once the PR is approved: `terraform apply ../../artifacts/firestore.plan`.
 
-The `app_settings.tf` module creates the `appSettings/configuration/delivery` document with sanitized defaults that match the application cache expectations.
+The `app_settings.tf` module creates the `appSettings/configuration/delivery/main` document with sanitized defaults that match the application cache expectations.
 
 ## Cloud Run (Runtime Delivery Config)
 1. `cd infra/cloudrun`

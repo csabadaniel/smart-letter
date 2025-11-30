@@ -5,7 +5,7 @@
 
 ## Entities
 
-### DeliveryConfiguration (Firestore document: `appSettings/configuration/delivery`)
+### DeliveryConfiguration (Firestore document: `appSettings/configuration/delivery/main`)
 | Field | Type | Source | Validation / Notes |
 |-------|------|--------|---------------------|
 | `recipientEmail` | string | PUT request body | Required, trimmed, RFC 5322 compliant, <=254 chars, lowercase stored for idempotency. |

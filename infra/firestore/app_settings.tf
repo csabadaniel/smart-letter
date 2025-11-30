@@ -21,7 +21,7 @@ variable "project_id" {
 variable "delivery_config_collection_path" {
   description = "Fully qualified Firestore path for the delivery configuration document"
   type        = string
-  default     = "appSettings/configuration/delivery"
+  default     = "appSettings/configuration/delivery/main"
 }
 
 variable "delivery_config_seed" {

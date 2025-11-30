@@ -12,7 +12,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class FirestoreEmulatorTestBaseTest extends FirestoreEmulatorTestBase {
 
-    private static final String DOCUMENT_PATH = "appSettings/configuration/delivery";
+    private static final String DOCUMENT_PATH = "appSettings/configuration/delivery/main";
 
     @Test
     @Order(1)

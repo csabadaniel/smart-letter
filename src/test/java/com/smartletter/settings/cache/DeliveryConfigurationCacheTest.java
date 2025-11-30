@@ -27,7 +27,7 @@ class DeliveryConfigurationCacheTest {
     @BeforeEach
     void setUp() {
         DeliveryConfigurationProperties properties = new DeliveryConfigurationProperties();
-        properties.setCollectionPath("appSettings/configuration/delivery");
+        properties.setCollectionPath("appSettings/configuration/delivery/main");
         properties.setCacheTtlSeconds(5);
         clock = new MutableClock(Instant.parse("2025-11-30T00:00:00Z"));
         cache = new DeliveryConfigurationCache(properties, clock);

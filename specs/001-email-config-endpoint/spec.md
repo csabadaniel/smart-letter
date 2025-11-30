@@ -91,7 +91,7 @@ As the SRE, I want configuration update attempts (success, validation failure, u
 
 ### Persistent Settings Store *(constitution-required)*
 
-- Collection `appSettings/configuration` stores a single document `delivery` with fields: `recipientEmail (string)`, `llmPrompt (string)`, `version (int)`, `updatedBy (string)`, `updatedAt (timestamp)`, `promptSha256 (string)`. No defaults; CI seeds explicit fixture via emulator script.
+- Document path `appSettings/configuration/delivery/main` stores the single record with fields: `recipientEmail (string)`, `llmPrompt (string)`, `version (int)`, `updatedBy (string)`, `updatedAt (timestamp)`, `promptSha256 (string)`. No defaults; CI seeds explicit fixture via emulator script.
 - Migration strategy: Terraform fixture creates empty document stub (status `pending`) during initial rollout; post-deploy runbook requires ops to populate actual values via API before enabling downstream features. Rollback = reinstate previous document snapshot captured in Firestore exports.
 - Cache: `DeliveryConfigurationService` caches doc for 60 seconds with ETag; stale detection occurs when Firestore `updateTime` changes or config endpoint returns new `version` causing invalidation.
 - Integration tests start emulator (`mvn test -Pfirestore-emulator`), seed fixture via JSON import, and delete the collection afterward; CI ensures Always Free quotas unaffected because emulator handles data locally.
