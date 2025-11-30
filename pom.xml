@@ -8,11 +8,11 @@
 		<version>3.4.12</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.example</groupId>
+	<groupId>com.smartletter</groupId>
 	<artifactId>smart-letter</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>demo</name>
-	<description>Demo project for Spring Boot</description>
+	<name>smart-letter</name>
+	<description>Recipient &amp; Prompt Configuration API</description>
 	<url/>
 	<licenses>
 		<license/>
@@ -30,6 +30,8 @@
 		<java.version>21</java.version>
 		<spring-cloud-gcp.version>6.5.1</spring-cloud-gcp.version>
 		<spring-cloud.version>2024.0.2</spring-cloud.version>
+		<springdoc.version>2.6.0</springdoc.version>
+		<springdoc.plugin.version>1.5</springdoc.plugin.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -46,7 +48,20 @@
 		</dependency>
 		<dependency>
 			<groupId>com.google.cloud</groupId>
-			<artifactId>spring-cloud-gcp-starter</artifactId>
+			<artifactId>spring-cloud-gcp-starter-firestore</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-registry-prometheus</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>${springdoc.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
 		</dependency>
 
 		<dependency>
@@ -79,6 +94,25 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.springdoc</groupId>
+				<artifactId>springdoc-openapi-maven-plugin</artifactId>
+				<version>${springdoc.plugin.version}</version>
+				<executions>
+					<execution>
+						<id>generate-openapi-doc</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<apiDocsUrl>http://localhost:8080/v3/api-docs</apiDocsUrl>
+							<outputFileName>openapi</outputFileName>
+							<outputFileType>yaml</outputFileType>
+							<outputDir>${project.basedir}/docs/contracts</outputDir>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

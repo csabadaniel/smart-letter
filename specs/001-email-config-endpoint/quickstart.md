@@ -6,7 +6,7 @@ This guide shows how to exercise the configuration endpoints locally while honor
 - Java 21 and Maven Wrapper (`./mvnw`) available
 - Docker installed (required for Testcontainers + Firestore emulator)
 - Valid `X-SmartLetter-Api-Key` for test environment stored in `.env.local` (never commit)
-- GCloud CLI authenticated if you plan to run Terraform or Cloud Run commands
+- Google Cloud CLI installed (`brew install --cask google-cloud-sdk`) with Application Default Credentials configured via `gcloud auth application-default login`; required because Spring Cloud GCP Firestore auto-config loads ADC even when using the emulator.
 
 ## 1. Install Dependencies
 ```bash
