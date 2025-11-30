@@ -18,6 +18,8 @@ target/
 *.iws
 *.iml
 *.ipr
+*.class
+*.jar
 
 ### NetBeans ###
 /nbproject/private/
@@ -38,3 +40,4 @@ Thumbs.db
 *.log
 .env
 .env.*
+pom.xml.versionsBackup
