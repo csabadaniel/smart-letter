@@ -113,6 +113,22 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>boot-start-for-openapi</id>
+						<phase>pre-integration-test</phase>
+						<goals>
+							<goal>start</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>boot-stop-after-openapi</id>
+						<phase>post-integration-test</phase>
+						<goals>
+							<goal>stop</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.springdoc</groupId>
@@ -121,6 +137,7 @@
 				<executions>
 					<execution>
 						<id>generate-openapi-doc</id>
+						<phase>integration-test</phase>
 						<goals>
 							<goal>generate</goal>
 						</goals>
@@ -130,6 +147,28 @@
 							<outputFileType>yaml</outputFileType>
 							<outputDir>${project.basedir}/docs/contracts</outputDir>
 						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>3.1.0</version>
+				<executions>
+					<execution>
+						<id>rename-openapi-json</id>
+						<phase>integration-test</phase>
+						<configuration>
+							<target>
+								<move file="${project.basedir}/docs/contracts/openapi"
+									tofile="${project.basedir}/docs/contracts/openapi.json"
+									overwrite="true"
+									failonerror="false" />
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
 					</execution>
 				</executions>
 			</plugin>
