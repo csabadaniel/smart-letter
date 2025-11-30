@@ -9,8 +9,9 @@ This guide shows how to exercise the configuration endpoints locally while honor
 - Google Cloud CLI installed (`brew install --cask google-cloud-sdk`) with Application Default Credentials configured via `gcloud auth application-default login`; required because Spring Cloud GCP Firestore auto-config loads ADC even when using the emulator.
 
 ## 0. Rehydrate the Spring Initializr Scaffold (only if files are missing)
-Run the constitution-mandated command whenever you need to recreate the baseline project structure:
+Set `PROJECT_ROOT` to your local clone of this repository, then run the constitution-mandated command whenever you need to recreate the baseline project structure:
 ```bash
+PROJECT_ROOT=/path/to/smart-letter
 curl https://start.spring.io/starter.zip \
   -d dependencies=web,validation,data-firestore,actuator \
   -d javaVersion=21 \
@@ -19,7 +20,7 @@ curl https://start.spring.io/starter.zip \
   -d packageName=com.smartletter \
   -o smart-letter.zip
 unzip -o smart-letter.zip -d /tmp/smart-letter-init
-rsync -a /tmp/smart-letter-init/ /Users/csaba.daniel/vscode-projects/smart-letter/
+rsync -a /tmp/smart-letter-init/ "$PROJECT_ROOT"/
 rm -rf smart-letter.zip /tmp/smart-letter-init
 ```
 
@@ -46,7 +47,7 @@ set +a
   ```bash
   echo ".env.local" >> .gitignore
 ```bash
-cd /Users/csaba.daniel/vscode-projects/smart-letter
+cd "$PROJECT_ROOT"
 ./mvnw --version
 ```
 The Maven Wrapper downloads Maven 3.9.x automatically; no extra setup is required.
