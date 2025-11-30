@@ -24,6 +24,7 @@
 **Project Type**: Backend microservice with isolated **test** and **production** Cloud Run services  
 **Performance Goals**: LLM round-trip < 3s p95, email dispatch < 5s p95 unless tighter SLAs are required  
 **Constraints**: Code-first OpenAPI (controllers annotated for Springdoc generation), HTML + plaintext email pairing, deterministic fallback path, Micrometer metrics for llm/email events, authenticated Swagger UI exposure, API key enforcement via `X-SmartLetter-Api-Key`, INVEST-compliant story slicing, Firestore-backed persistent settings managed via IaC, and GitHub Actions-based continuous delivery to test (per commit) and production (per merge) environments gated by automated quality checks  
+**Release Versioning**: Production merges MUST publish annotated SemVer tags (`vMAJOR.MINOR.PATCH`) before deployment, referencing the GitHub Actions run URL inside the tag annotation and release notes.  
 **Scale/Scope**: Baseline 10k rich-text emails per day; override with feature-specific demand if known  
 **Containerization & Deployment**: Build OCI images via Paketo Buildpacks or Jib, publish to Artifact Registry, and target Cloud Run (Always Free tier: <= 1 vCPU, <= 256 MiB, <= 20 concurrency) with `gcloud run deploy` automation recorded here. Infrastructure provisioning MUST be expressed as code (Terraform, Pulumi, or scripted `gcloud`) stored under `/infra/` in this repository and referenced by branch/tag.
 
@@ -42,7 +43,7 @@
 - **TDD/BDD plan**: Identify which stories will add JUnit/AssertJ unit tests, Spring Cloud Contract stubs, Testcontainers flows, and Gherkin scenarios (Cucumber JVM). Note how “red -> green -> refactor” evidence will be captured in commits/PRs (Workflow & Quality Gates).
 - **IaC readiness**: Document the Terraform/Pulumi modules (or scripted `gcloud` tooling) under `/infra/`, what resources they manage (Cloud Run, Artifact Registry, Secret Manager, IAM, monitoring), how state is stored, and where the `plan` output will be attached for review.
 - **Persistent settings**: Describe new or updated Firestore entities/documents (kinds, collection paths, indexes), default values, migration approach (seed scripts or IaC), and how Always Free quotas will be respected.
-- **CI/CD automation**: Reference the GitHub Actions workflows (e.g., `.github/workflows/ci.yml`, `deploy-prod.yml`), triggers (push, merge), secrets, and promotion logic. Explain how quality gates (tests, coverage, Terraform plan, SBOM, container scan) feed deployment jobs and how failures block the test/prod deploy steps.
+- **CI/CD automation**: Reference the GitHub Actions workflows (e.g., `.github/workflows/ci.yml`, `deploy-prod.yml`), triggers (push, merge), secrets, and promotion logic. Explain how quality gates (tests, coverage, Terraform plan, SBOM, container scan) feed deployment jobs, how failures block the test/prod deploy steps, and how annotated SemVer tags are generated/pushed for production deployments.
 - **Documentation encoding**: Confirm every documentation artifact touched by this feature (plan/spec/tasks/checklists/runbooks) remains ASCII-only, that expressive icons use GitHub Markdown emoji codes (e.g., `:warning:`) only inside Markdown, and that Bash/CLI scripts output ASCII-only status tags (e.g., `[OK]`, `[FAIL]`) rather than Markdown emoji codes. Reference the lint or scan that enforces this rule and note how reviewers will verify it before merge.
 
 ### Project Structure
@@ -97,7 +98,7 @@ infra/
 
 .github/workflows/
 ├── ci.yml                     # Runs quality gates + test-environment deploy on every push
-└── deploy-prod.yml            # Runs quality gates + production deploy on merges to release branch
+└── deploy-prod.yml            # Runs quality gates + production deploy on merges to release branch and publishes the annotated SemVer tag for the release
 ```
 
 **Structure Decision**: This layout is the default; document any additions (e.g., extra modules) and how they respect the constitution guardrails.
