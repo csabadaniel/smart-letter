@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: smart-letter
+  cloud:
+    gcp:
+      project-id: ${SPRING_CLOUD_GCP_PROJECT_ID:smart-letter-local}
+      firestore:
+        project-id: ${SPRING_CLOUD_GCP_FIRESTORE_PROJECT_ID:${spring.cloud.gcp.project-id}}
+
+delivery-config:
+  # Firestore document path storing the single recipient + prompt configuration
+  collection-path: ${DELIVERY_CONFIG_COLLECTION_PATH:appSettings/configuration/delivery}
+  # Cache TTL (seconds) mirrored by DeliveryConfigurationCache and controller cache headers
+  cache-ttl-seconds: ${DELIVERY_CONFIG_CACHE_TTL_SECONDS:60}
+
+smartletter:
+  api-key:
+    metadata:
+      # Local dev uses ops-admin-local, staging/test ops-admin-test, production ops-admin-prod
+      owner-slug: ${SMARTLETTER_API_KEY_OWNER_SLUG:ops-admin-local}
+      # Local env defaults to "local", set to "test" or "prod" per deployment environment
+      environment: ${SMARTLETTER_API_KEY_ENVIRONMENT:local}
