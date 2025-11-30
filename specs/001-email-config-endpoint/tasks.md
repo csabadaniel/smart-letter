@@ -25,7 +25,7 @@
 - [x] T001 Verify the Spring Initializr scaffold exists at repo root (`./pom.xml`, `./mvnw`, `./.mvn/`, `./src/`) and rerun `curl https://start.spring.io/starter.zip -d dependencies=web,validation,data-firestore,actuator -d javaVersion=21 -d language=java -d type=maven-project -d packageName=com.smartletter -o smart-letter.zip` + unzip if any generated files are missing.
 - [x] T002 Update `pom.xml` to include Spring Web, Validation, Actuator, Spring Cloud GCP Firestore, Micrometer (Prometheus + logging), Springdoc OpenAPI, SHA-256 utility, and the `springdoc-openapi-maven-plugin` so PUT/GET endpoints compile and contracts regenerate.
 - [x] T003 Add `delivery-config.collection-path`, `delivery-config.cache-ttl-seconds`, and API-key metadata placeholders (with comments for local/test/prod) to `src/main/resources/application.yml` so configuration values have explicit defaults.
-- [ ] T004 Refresh `specs/001-email-config-endpoint/quickstart.md` with the mandated Spring Initializr command, Firestore emulator env exports, API key loading guidance, and ASCII verification steps.
+- [x] T004 Refresh `specs/001-email-config-endpoint/quickstart.md` with the mandated Spring Initializr command, Firestore emulator env exports, API key loading guidance, and ASCII verification steps.
 
 ---
 
