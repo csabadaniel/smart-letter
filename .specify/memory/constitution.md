@@ -1,16 +1,14 @@
 <!--
 Sync Impact Report
-Version: 2.1.1 -> 2.2.0
+Version: 2.2.0 -> 2.3.0
 Modified Principles:
-- Service Guardrails – Runtime Stack now requires Spring Initializr for initial scaffolding instead of Spring Boot CLI
+- Service Guardrails – Runtime Stack now prefers Lombok over Java records for boilerplate elimination
 Added Sections:
 - None
 Removed Sections:
 - None
 Templates:
 - .specify/templates/plan-template.md :white_check_mark: updated
-- .specify/templates/spec-template.md :white_check_mark: updated
-- .specify/templates/tasks-template.md :white_check_mark: updated
 Follow-ups:
 - None
 -->
@@ -51,7 +49,7 @@ Follow-ups:
 
 ## Service Guardrails
 
-- **Runtime Stack**: Java 21, Spring Boot 3.3.x, Maven build (enforced via Maven Wrapper `./mvnw`), Spring MVC controllers, Spring WebClient for outbound HTTP, and Spring Mail/Jakarta Mail for SMTP. Every service must be scaffolded initially via Spring Initializr (https://start.spring.io or its REST API) using official Spring Boot Starter dependencies (no ad-hoc wiring) so cross-cutting concerns stay consistent. Deviations require architecture approval.
+- **Runtime Stack**: Java 21, Spring Boot 3.3.x, Maven build (enforced via Maven Wrapper `./mvnw`), Spring MVC controllers, Spring WebClient for outbound HTTP, and Spring Mail/Jakarta Mail for SMTP. Every service must be scaffolded initially via Spring Initializr (https://start.spring.io or its REST API) using official Spring Boot Starter dependencies (no ad-hoc wiring) so cross-cutting concerns stay consistent. Lombok 1.18.32+ (annotation processing enabled in IDE + CI) is the preferred mechanism for eliminating boilerplate (constructors, builders, equals/hashCode, toString) across DTOs, configuration properties, and other classes where it improves clarity; Java records remain optional but are no longer the default. Any Lombok-generated behavior that affects program logic MUST be covered by tests before relying on it.
 - **LLM Integration**: Use HTTPS JSON APIs with API-key auth stored in the secrets manager; prompts live in `src/main/resources/prompts/` and must be versioned.
 - **Email Delivery**: Store templates in `src/main/resources/templates/` with paired HTML/text variants, and send via a provider that supports rich text (e.g., SES, Postmark). Capture provider message IDs for traceability.
 - **Configuration & Secrets**: Manage via Spring Config + environment variables; never persist raw LLM responses beyond transient processing logs.
@@ -84,4 +82,4 @@ Follow-ups:
 
 This constitution supersedes other development practices for the Smart Letter service. Amendments require an RFC describing the motivation, risk assessment, and migration plan, plus approval from the service tech lead and product owner. Version changes follow semantic rules: MAJOR for removals or redefinitions of principles/sections, MINOR for new principles or expanded guardrails, PATCH for clarifications that do not change obligations. Every merged feature plan/spec/tasks document must include a "Constitution Check" section that records compliance evidence. PRs without a completed "Constitution Check" section must be rejected during review. The release engineer schedules quarterly compliance reviews; any violations must be remediated before the next release or explicitly waived with documented risk acceptance.
 
-**Version**: 2.2.0 | **Ratified**: 2025-11-22 | **Last Amended**: 2025-11-29
+**Version**: 2.3.0 | **Ratified**: 2025-11-22 | **Last Amended**: 2025-11-30
