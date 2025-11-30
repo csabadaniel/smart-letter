@@ -5,7 +5,9 @@
 
 **Tests**: Each user story begins with failing Cucumber + automated tests (JUnit/AssertJ + Testcontainers) before implementation per Principle IV; do not skip tests unless the spec documents an approved exception.
 
-**Format reminder**: `- [ ] T### [P] [US#] Description with file path`
+**Format reminder**: `- [ ] T### [P?] [US#?] Description with file path`
+	- Include `[P]` only when the task is parallelizable (independent files/no deps)
+	- Include `[US#]` only for user-story phases (omit during Setup/Foundational/Polish)
 
 **Numbering guide**: Task IDs are contiguous and scoped per phase to avoid ambiguity:
 - Phase 1 uses T001-T004
