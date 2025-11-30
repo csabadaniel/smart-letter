@@ -7,6 +7,14 @@
 
 **Format reminder**: `- [ ] T### [P] [US#] Description with file path`
 
+**Numbering guide**: Task IDs are contiguous and scoped per phase to avoid ambiguity:
+- Phase 1 uses T001-T004
+- Phase 2 uses T005-T010
+- Phase 3 (US1) uses T011-T019
+- Phase 4 (US2) uses T020-T025
+- Phase 5 (US3) uses T026-T031
+- Polish phase uses T032-T034
+
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Re-establish the Spring Initializr scaffold, dependency graph, and documentation so later phases can compile and run.
