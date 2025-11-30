@@ -1,0 +1,278 @@
+name: Deploy Production
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  id-token: write
+  packages: read
+
+env:
+  JAVA_VERSION: '21'
+  GCP_REGION: us-central1
+
+jobs:
+  quality-gate:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Temurin JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: maven
+
+      - name: ASCII scan (docs + specs)
+        run: ./scripts/ascii-scan.sh specs/001-email-config-endpoint
+
+      - name: Maven verify (-Pfirestore-emulator)
+        run: ./mvnw -B --no-transfer-progress clean verify -Pfirestore-emulator
+
+      - name: Ensure OpenAPI contract is committed
+        run: git diff --exit-code docs/contracts/openapi.json
+
+      - name: Upload OpenAPI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: openapi-contract
+          path: docs/contracts/openapi.json
+
+      - name: Upload test reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-reports
+          path: |
+            target/surefire-reports
+            target/failsafe-reports
+          if-no-files-found: ignore
+
+  terraform-plan:
+    name: Terraform Plan (prod env)
+    needs: quality-gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve production deployment settings
+        run: |
+          echo "IMAGE_NAME=${{ secrets.ARTIFACT_REGISTRY_REPOSITORY }}:${{ github.sha }}" >> "$GITHUB_ENV"
+          echo "PROD_SERVICE_NAME=${{ secrets.PROD_CLOUD_RUN_SERVICE }}" >> "$GITHUB_ENV"
+          echo "PROD_API_KEY_SECRET=${{ secrets.PROD_SMARTLETTER_API_KEY_SECRET }}" >> "$GITHUB_ENV"
+          echo "PROD_API_KEY_SECRET_VERSION=${{ secrets.PROD_SMARTLETTER_API_KEY_SECRET_VERSION }}" >> "$GITHUB_ENV"
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+
+      - name: Set up gcloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.2
+
+      - name: Prepare artifact directory
+        run: mkdir -p artifacts
+
+      - name: Terraform init (firestore)
+        run: terraform -chdir=infra/firestore init -input=false
+
+      - name: Terraform plan (firestore)
+        run: terraform -chdir=infra/firestore plan -input=false -out=../../artifacts/firestore.plan -var "project_id=${{ secrets.GCP_PROJECT_ID }}"
+
+      - name: Terraform init (cloudrun)
+        run: terraform -chdir=infra/cloudrun init -input=false
+
+      - name: Terraform plan (cloudrun)
+        run: terraform -chdir=infra/cloudrun plan -input=false -out=../../artifacts/cloudrun.plan -var "project_id=${{ secrets.GCP_PROJECT_ID }}" -var "region=${{ env.GCP_REGION }}" -var "service_account_email=${{ secrets.GCP_SERVICE_ACCOUNT_EMAIL }}" -var "service_name=${PROD_SERVICE_NAME}" -var "api_key_secret_name=${PROD_API_KEY_SECRET}" -var "api_key_secret_key=${PROD_API_KEY_SECRET_VERSION}" -var "container_image=${IMAGE_NAME}"
+
+      - name: Upload Terraform plans
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plans
+          path: artifacts/*.plan
+
+  build-and-scan:
+    name: Build, SBOM, and Scan
+    needs: quality-gate
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.image-meta.outputs.image }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve image name
+        run: echo "IMAGE_NAME=${{ secrets.ARTIFACT_REGISTRY_REPOSITORY }}:${{ github.sha }}" >> "$GITHUB_ENV"
+
+      - name: Set up Temurin JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: maven
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+
+      - name: Set up gcloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Artifact Registry auth
+        run: |
+          registry_host="${{ secrets.ARTIFACT_REGISTRY_REPOSITORY }}"
+          registry_host="${registry_host%%/*}"
+          gcloud auth configure-docker "$registry_host"
+
+      - name: Build container image via Buildpacks
+        run: ./mvnw -B -DskipTests spring-boot:build-image -Dspring-boot.build-image.imageName="${IMAGE_NAME}"
+
+      - name: Push image to Artifact Registry
+        run: docker push "${IMAGE_NAME}"
+
+      - name: Generate SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          image: ${{ env.IMAGE_NAME }}
+          output-file: sbom.spdx.json
+
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: sbom.spdx.json
+
+      - name: Scan image (Trivy)
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          image-ref: ${{ env.IMAGE_NAME }}
+          format: table
+          exit-code: '1'
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Publish image metadata
+        id: image-meta
+        run: echo "image=${IMAGE_NAME}" >> "$GITHUB_OUTPUT"
+
+  deploy-prod:
+    name: Deploy and Tag Production
+    needs:
+      - quality-gate
+      - terraform-plan
+      - build-and-scan
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve deployment inputs
+        run: |
+          echo "IMAGE_NAME=${{ needs.build-and-scan.outputs.image }}" >> "$GITHUB_ENV"
+          echo "PROD_SERVICE_NAME=${{ secrets.PROD_CLOUD_RUN_SERVICE }}" >> "$GITHUB_ENV"
+
+      - name: Download Terraform plans
+        uses: actions/download-artifact@v4
+        with:
+          name: terraform-plans
+          path: artifacts
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+
+      - name: Set up gcloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.2
+
+      - name: Terraform init (firestore)
+        run: terraform -chdir=infra/firestore init -input=false
+
+      - name: Terraform apply (firestore)
+        run: terraform -chdir=infra/firestore apply -input=false ../../artifacts/firestore.plan
+
+      - name: Terraform init (cloudrun)
+        run: terraform -chdir=infra/cloudrun init -input=false
+
+      - name: Terraform apply (cloudrun)
+        run: terraform -chdir=infra/cloudrun apply -input=false ../../artifacts/cloudrun.plan
+
+      - name: Deploy Cloud Run service (prod)
+        id: deploy
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: ${{ env.PROD_SERVICE_NAME }}
+          region: ${{ env.GCP_REGION }}
+          image: ${{ env.IMAGE_NAME }}
+
+      - name: Annotate Cloud Run revision with commit SHA
+        run: |
+          gcloud run services update "${PROD_SERVICE_NAME}" \
+            --region "${GCP_REGION}" \
+            --update-annotations "smart-letter.dev/commit-sha=${GITHUB_SHA}"
+        env:
+          PROD_SERVICE_NAME: ${{ env.PROD_SERVICE_NAME }}
+          GCP_REGION: ${{ env.GCP_REGION }}
+
+      - name: Flag Slack notifications
+        run: |
+          if [ -n "${{ secrets.SLACK_WEBHOOK_URL }}" ]; then
+            echo "SLACK_ENABLED=true" >> "$GITHUB_ENV"
+          fi
+
+      - name: Notify Slack (optional)
+        if: ${{ env.SLACK_ENABLED == 'true' }}
+        uses: slackapi/slack-github-action@v1.27.0
+        with:
+          payload: >-
+            {"text":"[CI][PROD] Deployment for ${GITHUB_SHA} finished with status ${{ job.status }}"}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+
+      - name: Determine release tag
+        id: release_tag
+        run: |
+          VERSION=$(python -c "import xml.etree.ElementTree as ET; ns={'m':'http://maven.apache.org/POM/4.0.0'}; root=ET.parse('pom.xml').getroot(); print(root.find('m:version', ns).text)")
+          CLEAN=${VERSION%-SNAPSHOT}
+          if [[ "$CLEAN" == "$VERSION" ]]; then
+            TAG="$CLEAN"
+          else
+            TAG="$CLEAN.${GITHUB_RUN_NUMBER}"
+          fi
+          echo "tag=v$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Push annotated tag
+        env:
+          RELEASE_TAG: ${{ steps.release_tag.outputs.tag }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "$RELEASE_TAG" -m "Release $RELEASE_TAG"
+          git push origin "$RELEASE_TAG"
+
+      - name: Publish deploy URL
+        run: |
+          echo "Production URL: ${{ steps.deploy.outputs.url }}"
