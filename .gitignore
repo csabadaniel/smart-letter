@@ -20,6 +20,9 @@ target/
 *.ipr
 *.class
 *.jar
+*.tfstate
+*.tfstate.*
+.terraform/
 
 ### NetBeans ###
 /nbproject/private/
@@ -40,4 +43,6 @@ Thumbs.db
 *.log
 .env
 .env.*
+artifacts/
+*.plan
 pom.xml.versionsBackup
