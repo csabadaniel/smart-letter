@@ -61,7 +61,7 @@ description: "Task list template for feature implementation"
 - [ ] T008 [P] Initialize `/infra/terraform` (or `/infra/pulumi`) modules covering Cloud Run, Artifact Registry, Secret Manager, IAM, and monitoring resources; configure remote/state storage and module README.
 - [ ] T009 [P] Add CI automation that runs `terraform fmt`, `terraform validate`, and `terraform plan` (or Pulumi preview) on every PR touching `/infra/`, attaching the plan artifact to the review.
 - [ ] T010 [P] Author `.github/workflows/ci.yml` that runs lint + TDD/BDD/contract suites, coverage gates, Terraform plan, container build+scan, SBOM upload, and auto-deploy to the test Cloud Run service when all checks pass.
-- [ ] T011 [P] Author `.github/workflows/deploy-prod.yml` (or add release job) that triggers on merges to the protected branch, reruns the quality gates, requires green test workflow status, and then deploys to the production Cloud Run service.
+- [ ] T011 [P] Author `.github/workflows/deploy-prod.yml` (or add release job) that triggers on merges to the protected branch, reruns the quality gates, requires green test workflow status, deploys to the production Cloud Run service, and publishes the annotated SemVer tag for the release.
 - [ ] T012 Configure workflow secrets (API keys, GCP service accounts) via GitHub Environments with required reviewers for production deploys and document rotation procedures.
 
 ---
@@ -191,6 +191,7 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] TXXX Validate Swagger UI (auth, Try-It-Out policy, OpenAPI hash) in staging/production and attach manual test evidence
 - [ ] TXXX Audit API key rotation logs, revoke unused keys, and document evidence for the release
 - [ ] TXXX Capture links to the latest GitHub Actions push (test deploy) and release (production deploy) workflow runs, ensuring all required jobs succeeded and artifacts (tests, coverage, Terraform plan, SBOM) are archived.
+- [ ] TXXX Record the annotated SemVer tag (`vMAJOR.MINOR.PATCH`) produced for the release, including the workflow run URL in the tag annotation and release notes evidence.
 - [ ] TXXX Capture Firestore usage metrics (storage, daily reads/writes) and attach screenshots/logs proving the service remains within Always Free limits; document any migrations applied this release.
 
 ---

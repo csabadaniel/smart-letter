@@ -111,6 +111,7 @@
 - **FR-015**: GitHub Actions workflows must run on every commit (test deploy) and on merges to the release branch (production deploy), executing the full quality gate (lint, unit/integration/contract/BDD suites, coverage, Terraform plan, container build + scan) before invoking deployment jobs. Workflows must publish artifacts and tag Cloud Run revisions with the source commit SHA.
 - **FR-016**: All documentation artifacts generated or updated for this feature (plan, spec, tasks, checklists, runbooks) MUST remain ASCII-only. Use GitHub Markdown emoji codes (e.g., `:warning:`) for expressive icons inside Markdown, but ensure Bash/CLI scripts emit ASCII-only status text (e.g., `[OK]`, `[FAIL]`) instead of Markdown emoji codes. Document the lint/scan that proves compliance before merge.
 - **FR-017**: Initial scaffolding for any new Spring Boot service or module MUST be generated via Spring Initializr (https://start.spring.io or its REST API) to ensure every component starts from official Spring Boot Starter dependencies; deviations must be documented as constitution exceptions.
+- **FR-018**: Release workflows MUST create annotated semantic version tags (`vMAJOR.MINOR.PATCH`) for every production deployment, include the GitHub Actions run URL inside the tag annotation, and ensure the tag version appears in release notes, deployment manifests, and Cloud Run metadata.
 
 *Example of marking unclear requirements:*
 
@@ -143,6 +144,7 @@
 ### Continuous Delivery Automation *(constitution-required)*
 
 - Reference the GitHub Actions workflows that run on push (test deploy) and merge (production deploy), including job names, secrets, and artifact outputs.
+- Document how annotated SemVer tags (`vMAJOR.MINOR.PATCH`) are generated, what commit/version they reference, and how the workflow persists the tag annotation + release notes.
 - Detail the quality gates (tests, coverage minimums, Terraform plan diffs, SBOM, container scan) and how failing gates block the deploy steps.
 - Describe how workflow runs annotate Cloud Run revisions with commit SHAs, publish environment URLs, and notify stakeholders (Slack/email) when deployments complete or fail.
 - Outline rollback/roll-forward expectations and manual intervention steps when test or production deployments require remediation.

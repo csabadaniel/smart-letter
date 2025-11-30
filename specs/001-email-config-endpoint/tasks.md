@@ -11,11 +11,11 @@
 
 **Numbering guide**: Task IDs are contiguous and scoped per phase to avoid ambiguity:
 - Phase 1 uses T001-T004
-- Phase 2 uses T005-T010
-- Phase 3 (US1) uses T011-T019
-- Phase 4 (US2) uses T020-T025
-- Phase 5 (US3) uses T026-T031
-- Polish phase uses T032-T034
+- Phase 2 uses T005-T011
+- Phase 3 (US1) uses T012-T020
+- Phase 4 (US2) uses T021-T026
+- Phase 5 (US3) uses T027-T032
+- Polish phase uses T033-T034
 
 ## Phase 1: Setup (Shared Infrastructure)
 
@@ -39,7 +39,8 @@
 - [x] T007 Build `src/main/java/com/smartletter/settings/firestore/DeliveryConfigurationRepository.java` using Firestore transactions with `FieldValue.increment(1)`, `promptSha256`, and emulator awareness.
 - [ ] T008 Create `src/main/java/com/smartletter/settings/cache/DeliveryConfigurationCache.java` encapsulating 60-second TTL storage, `ETag` derivation, and explicit `invalidate()` hooks triggered after writes.
 - [ ] T009 Add `src/test/java/com/smartletter/support/firestore/FirestoreEmulatorTestBase.java` that spins up the Testcontainers emulator, seeds JSON fixtures, and cleans collections for repository/service tests.
-- [ ] T010 Update `infra/firestore/app_settings.tf` (seed `appSettings/configuration/delivery`) and `infra/cloudrun/main.tf` (pass delivery-config env vars/secrets), then capture the plan artifact referenced in PR checklists.
+- [ ] T010 Update `infra/firestore/app_settings.tf` (seed `appSettings/configuration/delivery`) and `infra/cloudrun/main.tf` (pass delivery-config env vars/secrets), capturing the Terraform plan artifact referenced in PR checklists.
+- [ ] T011 Author/update `.github/workflows/ci.yml` and `.github/workflows/deploy-prod.yml` so every branch push runs the full quality gate (`-Pfirestore-emulator`, BDD, contracts, Terraform plan, container build + scan) plus deploys to the test environment, while merges to `main` rerun gates, deploy to production, and publish annotated SemVer tags with required approvals.
 
 ---
 
@@ -50,18 +51,18 @@
 
 ### Tests (fail first)
 
-- [ ] T011 [P] [US1] Expand `src/test/resources/features/configuration/config_management.feature` with `@US1-success`, `@US1-validation-error`, and `@US1-conflict` scenarios plus glue under `src/test/java/com/smartletter/bdd/configuration/`.
-- [ ] T012 [P] [US1] Add `DeliveryConfigurationControllerPutTest` in `src/test/java/com/smartletter/settings/api/` covering validation, auth, 200/201/409/422 mappings, and audit header assertions via MockMvc.
-- [ ] T013 [P] [US1] Create `DeliveryConfigurationServiceUpsertIT` in `src/test/java/com/smartletter/settings/service/` exercising Firestore transaction rollback, version incrementing, cache invalidation, and prompt hashing via the emulator base.
+- [ ] T012 [P] [US1] Expand `src/test/resources/features/configuration/config_management.feature` with `@US1-success`, `@US1-validation-error`, and `@US1-conflict` scenarios plus glue under `src/test/java/com/smartletter/bdd/configuration/`.
+- [ ] T013 [P] [US1] Add `DeliveryConfigurationControllerPutTest` in `src/test/java/com/smartletter/settings/api/` covering validation, auth, 200/201/409/422 mappings, and audit header assertions via MockMvc.
+- [ ] T014 [P] [US1] Create `DeliveryConfigurationServiceUpsertIT` in `src/test/java/com/smartletter/settings/service/` exercising Firestore transaction rollback, version incrementing, cache invalidation, and prompt hashing via the emulator base.
 
 ### Implementation
 
-- [ ] T014 [US1] Implement `DeliveryConfigurationRequest`/`DeliveryConfigurationResponse` records with `jakarta.validation` + Springdoc annotations in `src/main/java/com/smartletter/settings/api/` including example values + descriptions.
-- [ ] T015 [US1] Implement `DeliveryConfigurationService.upsert` in `src/main/java/com/smartletter/settings/service/DeliveryConfigurationService.java` to run Firestore transaction, compute `promptSha256`, set `updatedBy/updatedAt/version`, and invalidate the cache.
-- [ ] T016 [US1] Implement `DeliveryConfigurationController.putConfig` in `src/main/java/com/smartletter/settings/api/DeliveryConfigurationController.java` using the argument resolver, mapping domain exceptions to `ApiErrorHandler`, and returning response headers.
-- [ ] T017 [P] [US1] Add `src/main/java/com/smartletter/settings/observability/ConfigUpdateMetrics.java` (Micrometer counters/histogram) plus `ConfigurationAuditEvent` logging to emit sanitized success/failure entries.
-- [ ] T018 [US1] Regenerate `docs/contracts/openapi.yaml` via `./mvnw springdoc-openapi:generate`, review diff vs. `specs/001-email-config-endpoint/contracts/openapi.yaml`, and commit the updated artifact.
-- [ ] T019 [US1] Document PUT-specific runbook steps (optimistic locking guidance, sample payloads, error codes) in `docs/runbooks/config-governance.md`.
+- [ ] T015 [US1] Implement `DeliveryConfigurationRequest`/`DeliveryConfigurationResponse` records with `jakarta.validation` + Springdoc annotations in `src/main/java/com/smartletter/settings/api/` including example values + descriptions.
+- [ ] T016 [US1] Implement `DeliveryConfigurationService.upsert` in `src/main/java/com/smartletter/settings/service/DeliveryConfigurationService.java` to run Firestore transaction, compute `promptSha256`, set `updatedBy/updatedAt/version`, and invalidate the cache.
+- [ ] T017 [US1] Implement `DeliveryConfigurationController.putConfig` in `src/main/java/com/smartletter/settings/api/DeliveryConfigurationController.java` using the argument resolver, mapping domain exceptions to `ApiErrorHandler`, and returning response headers.
+- [ ] T018 [P] [US1] Add `src/main/java/com/smartletter/settings/observability/ConfigUpdateMetrics.java` (Micrometer counters/histogram) plus `ConfigurationAuditEvent` logging to emit sanitized success/failure entries.
+- [ ] T019 [US1] Regenerate `docs/contracts/openapi.yaml` via `./mvnw springdoc-openapi:generate`, review diff vs. `specs/001-email-config-endpoint/contracts/openapi.yaml`, and commit the updated artifact.
+- [ ] T020 [US1] Document PUT-specific runbook steps (optimistic locking guidance, sample payloads, error codes) in `docs/runbooks/config-governance.md`.
 
 **Checkpoint**: PUT endpoint passes automated suites and manual Swagger validation; metrics/log entries visible locally.
 
@@ -74,15 +75,15 @@
 
 ### Tests (fail first)
 
-- [ ] T020 [P] [US2] Extend `config_management.feature` with `@US2-success` and `@US2-not-found` scenarios plus glue for cache-header assertions in `src/test/java/com/smartletter/bdd/configuration/`.
-- [ ] T021 [P] [US2] Add `DeliveryConfigurationServiceCacheTest` in `src/test/java/com/smartletter/settings/service/` verifying 60s TTL, `ETag` derivation (`version` + `promptSha256`), and 404 exception semantics.
+- [ ] T021 [P] [US2] Extend `config_management.feature` with `@US2-success` and `@US2-not-found` scenarios plus glue for cache-header assertions in `src/test/java/com/smartletter/bdd/configuration/`.
+- [ ] T022 [P] [US2] Add `DeliveryConfigurationServiceCacheTest` in `src/test/java/com/smartletter/settings/service/` verifying 60s TTL, `ETag` derivation (`version` + `promptSha256`), and 404 exception semantics.
 
 ### Implementation
 
-- [ ] T022 [US2] Implement `DeliveryConfigurationService.getConfiguration` in `src/main/java/com/smartletter/settings/service/DeliveryConfigurationService.java` to serve cache hits, refresh on miss, and throw typed exception when Firestore lacks the document.
-- [ ] T023 [US2] Implement `DeliveryConfigurationController.getConfig` in `src/main/java/com/smartletter/settings/api/DeliveryConfigurationController.java` adding cache-control headers, `ETag`, and API key enforcement.
-- [ ] T024 [US2] Update `src/main/java/com/smartletter/settings/api/ApiErrorHandler.java` (or equivalent) to emit `CONFIG_NOT_FOUND` payloads with RFC7807 details and to set cache headers on successful responses.
-- [ ] T025 [US2] Capture GET usage, cache semantics, staging vs. production Swagger Try-It-Out rules, and deployment gating steps in `docs/runbooks/config-governance.md`.
+- [ ] T023 [US2] Implement `DeliveryConfigurationService.getConfiguration` in `src/main/java/com/smartletter/settings/service/DeliveryConfigurationService.java` to serve cache hits, refresh on miss, and throw typed exception when Firestore lacks the document.
+- [ ] T024 [US2] Implement `DeliveryConfigurationController.getConfig` in `src/main/java/com/smartletter/settings/api/DeliveryConfigurationController.java` adding cache-control headers, `ETag`, and API key enforcement.
+- [ ] T025 [US2] Update `src/main/java/com/smartletter/settings/api/ApiErrorHandler.java` (or equivalent) to emit `CONFIG_NOT_FOUND` payloads with RFC7807 details and to set cache headers on successful responses.
+- [ ] T026 [US2] Capture GET usage, cache semantics, staging vs. production Swagger Try-It-Out rules, and deployment gating steps in `docs/runbooks/config-governance.md`.
 
 **Checkpoint**: GET endpoint independently testable via automated suites + Swagger UI, including 404 behavior.
 
@@ -95,15 +96,15 @@
 
 ### Tests (fail first)
 
-- [ ] T026 [P] [US3] Add `@US3-observability` scenarios to `config_management.feature` plus glue verifying metric increments/log redaction in `src/test/java/com/smartletter/bdd/configuration/`.
-- [ ] T027 [P] [US3] Implement `ConfigUpdateMetricsTest` in `src/test/java/com/smartletter/settings/observability/` asserting counter, histogram, and unauthorized rate-limit gauges populate correct labels.
+- [ ] T027 [P] [US3] Add `@US3-observability` scenarios to `config_management.feature` plus glue verifying metric increments/log redaction in `src/test/java/com/smartletter/bdd/configuration/`.
+- [ ] T028 [P] [US3] Implement `ConfigUpdateMetricsTest` in `src/test/java/com/smartletter/settings/observability/` asserting counter, histogram, and unauthorized rate-limit gauges populate correct labels.
 
 ### Implementation
 
-- [ ] T028 [US3] Finalize `src/main/java/com/smartletter/settings/observability/ConfigurationAuditEvent.java` (or similar) to publish structured logs with hashed actors, prompt hashes, and correlation IDs.
-- [ ] T029 [US3] Wire Micrometer counters/histograms plus unauthorized rate-limit gauges into controller/service layers and expose via `/actuator/prometheus` by updating `src/main/java/com/smartletter/settings/observability/ConfigUpdateMetrics.java`.
-- [ ] T030 [US3] Update `infra/monitoring/config.tf` to add Cloud Monitoring alert policies for `config.update.failure` (>3/min) and `config.update.unauthorized` (>5/min) with Slack/webhook notifications and Terraform outputs documenting targets.
-- [ ] T031 [US3] Extend `docs/runbooks/alerts.md` with alert meanings, suppression workflow, and chaos-test validation steps referencing metrics/log IDs.
+- [ ] T029 [US3] Finalize `src/main/java/com/smartletter/settings/observability/ConfigurationAuditEvent.java` (or similar) to publish structured logs with hashed actors, prompt hashes, and correlation IDs.
+- [ ] T030 [US3] Wire Micrometer counters/histograms plus unauthorized rate-limit gauges into controller/service layers and expose via `/actuator/prometheus` by updating `src/main/java/com/smartletter/settings/observability/ConfigUpdateMetrics.java`.
+- [ ] T031 [US3] Update `infra/monitoring/config.tf` to add Cloud Monitoring alert policies for `config.update.failure` (>3/min) and `config.update.unauthorized` (>5/min) with Slack/webhook notifications and Terraform outputs documenting targets.
+- [ ] T032 [US3] Extend `docs/runbooks/alerts.md` with alert meanings, suppression workflow, and chaos-test validation steps referencing metrics/log IDs.
 
 **Checkpoint**: Metrics/logs observable locally and alert Terraform plan reviewed/attached to PR evidence.
 
@@ -114,8 +115,7 @@
 **Purpose**: Validate documentation, CI/CD automation, and ASCII compliance before requesting review/deploy.
 **Independent Test**: Quickstart steps succeed on a fresh machine, ASCII/doc lint passes, Swagger UI validated in staging, and CI artifacts (OpenAPI, Terraform plan, emulator logs) are attached to the PR.
 
-- [ ] T032 [P] Run the quickstart flow end-to-end (tests, OpenAPI generation, Swagger PUT/GET via API key) and capture screenshots/notes in `specs/001-email-config-endpoint/quickstart.md`, including production Try-It-Out restrictions.
-- [ ] T033 [P] Ensure `.github/workflows/ci.yml` and `.github/workflows/deploy-prod.yml` include new suites (`-Pfirestore-emulator`, observability tests), artifact uploads (OpenAPI, Terraform plan, Cucumber report), and required approvals for production deploys.
+- [ ] T033 [P] Run the quickstart flow end-to-end (tests, OpenAPI generation, Swagger PUT/GET via API key) and capture screenshots/notes in `specs/001-email-config-endpoint/quickstart.md`, including production Try-It-Out restrictions.
 - [ ] T034 Run `./scripts/ascii-scan.sh specs/001-email-config-endpoint` and update `docs/RELEASE_NOTES.md` with links to CI runs, Terraform plan artifacts, and alert policy diffs.
 
 ---
@@ -131,9 +131,9 @@
 
 ## Parallel Execution Examples
 
-- **US1**: One engineer can own BDD + controller tests (T011-T012) while another builds repository/service integration (T013-T015); observability instrumentation (T017) proceeds in parallel after service signatures stabilize.
-- **US2**: While T020 expands BDD scenarios, another engineer can implement service/controller changes (T022-T023) and error handling (T024); documentation (T025) finalizes once responses are stable.
-- **US3**: Terraform alert work (T030) proceeds independently of code-level logging/metric tasks (T028-T029), while BDD + observability tests (T026-T027) validate behavior concurrently.
+- **US1**: One engineer can own BDD + controller tests (T012-T013) while another builds repository/service integration (T014-T016); observability instrumentation (T018) proceeds in parallel after service signatures stabilize.
+- **US2**: While T021 expands BDD scenarios, another engineer can implement service/controller changes (T023-T024) and error handling (T025); documentation (T026) finalizes once responses are stable.
+- **US3**: Terraform alert work (T031) proceeds independently of code-level logging/metric tasks (T029-T030), while BDD + observability tests (T027-T028) validate behavior concurrently.
 
 ## Implementation Strategy
 
