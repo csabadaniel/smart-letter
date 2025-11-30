@@ -17,6 +17,7 @@
 **Primary Dependencies**: Spring Web, Spring WebClient, Spring Validation, Thymeleaf, Spring Mail, Micrometer (note deviations explicitly)  
 **Build Tool**: Maven 3.9+ executed via the repository’s Maven Wrapper (`./mvnw`) for all builds, tests, and packaging steps  
 **Scaffolding**: Spring Initializr (https://start.spring.io or its REST API) MUST be used for initial project and module generation so every service starts from official Spring Boot Starter dependencies  
+**Boilerplate Helpers**: Prefer Lombok 1.18+ (annotation processing enabled in IDE + CI) for constructors/builders/equals/hashCode/toString across DTOs, configuration properties, and other classes; Java records remain optional when they simplify immutable carriers  
 **Storage**: PostgreSQL email audit log (state `N/A` only if the feature is entirely stateless) plus Cloud Firestore (Datastore mode) for permanent application settings kept within Always Free quotas  
 **Testing**: JUnit 5, Spring Boot Test, AssertJ, Mockito, Spring Cloud Contract, Testcontainers, Cucumber JVM  
 **Target Platform**: Linux container (x86_64) behind the shared HTTPS gateway  
